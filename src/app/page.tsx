@@ -229,7 +229,8 @@ export default function Home() {
       <footer className="border-t border-slate-700/50 bg-slate-900/50 backdrop-blur-sm mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center text-slate-400">
-            <p>&copy; 2025 FutureSats.io - Built by Fiz @ F12.GG</p>
+            <p>&copy; 2025 FutureSats.io - Built by Fiz @ <a href="https://f12.gg" target="_blank" rel="noopener noreferrer" className="underline hover:text-orange-400">F12.GG</a></p>  
+            <p className="text-xs text-slate-500 mt-1">Inspired by <a href="https://bitcoincompounding.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-orange-400">bitcoincompounding.com</a> - <a href="https://x.com/bitcoinhornet" target="_blank" rel="noopener noreferrer" className="underline hover:text-orange-400">@bitcoinhornet</a></p>
             <p className="text-sm mt-2">
               Plan your Bitcoin retirement with confidence
             </p>

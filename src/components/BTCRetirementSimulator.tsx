@@ -813,10 +813,14 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
                       <Info 
                         className="w-4 h-4 text-slate-400 hover:text-orange-400 cursor-pointer transition-colors" 
                         onMouseEnter={() => setShowModelInfo(true)} 
-                        onMouseLeave={() => setShowModelInfo(false)}
+                        onMouseLeave={() => setTimeout(() => setShowModelInfo(false), 100)}
                       />
                       {showModelInfo && (
-                        <div className="absolute z-20 left-1/2 -translate-x-1/2 mt-2 w-80 bg-slate-900 text-slate-100 text-xs rounded-lg shadow-lg p-3 border border-slate-700">
+                        <div 
+                          className="absolute z-20 left-1/2 -translate-x-1/2 mt-2 w-80 bg-slate-900 text-slate-100 text-xs rounded-lg shadow-lg p-3 border border-slate-700"
+                          onMouseEnter={() => setShowModelInfo(true)}
+                          onMouseLeave={() => setTimeout(() => setShowModelInfo(false), 100)}
+                        >
                           {selectedModel >= 0 && selectedModel <= 3 ? (
                             <>
                               <div className="font-semibold text-orange-400 mb-2">True Market Mean Models (1-4)</div>
@@ -855,6 +859,16 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
                                 </div>
                                 <div>
                                   <span className="font-semibold text-slate-300">Best For:</span> Trend-based, conservative retirement planning
+                                </div>
+                                <div className="mt-2">
+                                  <a
+                                    href="https://charts.bitbo.io/long-term-power-law/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-400 underline hover:text-blue-300 text-xs"
+                                  >
+                                    More about Power Law (Bitbo Chart)
+                                  </a>
                                 </div>
                                 <div className="mt-3 pt-2 border-t border-slate-600">
                                   <div className="text-xs text-slate-400">

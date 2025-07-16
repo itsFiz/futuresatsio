@@ -23,11 +23,9 @@ const FALLBACK_RATES: Record<string, number> = {
 export function useCurrency(selected: string = "MYR") {
   const [rates, setRates] = useState<Record<string, number>>(FALLBACK_RATES);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setLoading(true);
-    setError(null);
     
     // Use fallback rates immediately for better reliability
     console.log('Using fallback rates for immediate functionality');
@@ -105,7 +103,7 @@ export function useCurrency(selected: string = "MYR") {
       });
       
       return formatted;
-    } catch (error) {
+    } catch {
       // Fallback formatting
       return `${to} ${amount.toLocaleString()}`;
     }
@@ -131,5 +129,5 @@ export function useCurrency(selected: string = "MYR") {
 
   console.log('useCurrency hook - selected:', selected, 'rates:', rates, 'loading:', loading); // Debug log
   console.log('Available currencies:', Object.keys(rates)); // Debug log
-  return { rates, convert, format, loading, error };
+  return { rates, convert, format, loading };
 } 
