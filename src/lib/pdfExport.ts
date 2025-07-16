@@ -21,8 +21,7 @@ interface DipBuy {
 
 export function generateRetirementBlueprint(
   plan: RetirementPlan,
-  dipBuys: DipBuy[],
-  chartData: any[]
+  dipBuys: DipBuy[]
 ) {
   const doc = new jsPDF();
   
@@ -115,9 +114,8 @@ export function generateRetirementBlueprint(
 
 export function downloadRetirementBlueprint(
   plan: RetirementPlan,
-  dipBuys: DipBuy[],
-  chartData: any[]
+  dipBuys: DipBuy[]
 ) {
-  const doc = generateRetirementBlueprint(plan, dipBuys, chartData);
+  const doc = generateRetirementBlueprint(plan, dipBuys);
   doc.save(`${plan.name.replace(/\s+/g, '_')}_retirement_blueprint.pdf`);
 } 

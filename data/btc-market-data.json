@@ -1,14 +1,14 @@
 {
-  "currentPrice": 118223,
-  "marketCap": 2351834920945.4478,
-  "volume": 62143190200.11559,
-  "lastUpdated": "2025-07-16T08:09:48.126Z",
+  "currentPrice": 118847,
+  "marketCap": 2363201229376.745,
+  "volume": 60030673662.2133,
+  "lastUpdated": "2025-07-16T12:12:04.218Z",
   "priceHistory": [
     {
-      "timestamp": 1752653388126,
-      "price": 118223,
-      "marketCap": 2351834920945.4478,
-      "volume": 62143190200.11559
+      "timestamp": 1752667924218,
+      "price": 118847,
+      "marketCap": 2363201229376.745,
+      "volume": 60030673662.2133
     }
   ]
 }

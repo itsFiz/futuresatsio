@@ -1,25 +1,43 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Bitcoin, Calculator, TrendingUp, BarChart3, DollarSign, Calendar, CheckCircle, ArrowRight, ArrowLeft } from "lucide-react";
+import { Bitcoin, Calculator, TrendingUp, BarChart3, CheckCircle, ArrowRight, ArrowLeft } from "lucide-react";
 import BTCRetirementSimulator from "@/components/BTCRetirementSimulator";
 import ResultsDashboard from "@/components/ResultsDashboard";
 import DipBuyPlanner from "@/components/DipBuyPlanner";
 import CurrencySelector from "@/components/CurrencySelector";
 import { useCurrency } from "@/lib/useCurrency";
 
-// Placeholder for WithdrawalPlanner
-function WithdrawalPlanner({ state, setState }: { state: any, setState: (s: any) => void }) {
-  return (
-    <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700/50">
-      <h3 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
-        <DollarSign className="w-6 h-6 text-green-400" />
-        <span>Withdrawal Planner (Optional)</span>
-      </h3>
-      <p className="text-slate-300 mb-4">Plan your withdrawals here. (Feature coming soon!)</p>
-    </div>
-  );
+// Import types from components
+interface SimulationParams {
+  targetYear: number;
+  startingBTC: number;
+  monthlyDCA: number;
+  dcaGrowthRate: number;
+  btcCAGR: number;
+  currentYear: number;
+  startMonth: number;
+  withdrawalStartYear: number;
 }
+
+interface DipBuy {
+  year: number;
+  amount: number;
+  btcPrice: number;
+}
+
+// Placeholder for WithdrawalPlanner
+// function WithdrawalPlanner() {
+//   return (
+//     <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700/50">
+//       <h3 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
+//         <DollarSign className="w-6 h-6 text-green-400" />
+//         <span>Withdrawal Planner (Optional)</span>
+//       </h3>
+//       <p className="text-slate-300 mb-4">Plan your withdrawals here. (Feature coming soon!)</p>
+//     </div>
+//   );
+// }
 
 const steps = [
   { label: "Simulator", icon: Calculator, free: true },
@@ -35,8 +53,8 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
 
   // State for each step
-  const [simulatorState, setSimulatorState] = useState<any>(null); // Will be set by child
-  const [dipBuyState, setDipBuyState] = useState<any>(null);
+  const [simulatorState, setSimulatorState] = useState<SimulationParams | undefined>(undefined); // Will be set by child
+  const [dipBuyState, setDipBuyState] = useState<DipBuy[] | undefined>(undefined);
   // Removed withdrawalState
 
   // Error boundary effect
@@ -49,8 +67,8 @@ export default function Home() {
   }, []);
 
   const { convert, format, loading: currencyLoading, rates } = useCurrency(currency);
-  const safeConvert = convert || ((amount: number, to: string) => amount);
-  const safeFormat = format || ((amount: number, to: string) => amount.toLocaleString());
+  const safeConvert = convert || ((amount: number) => amount);
+  const safeFormat = format || ((amount: number) => amount.toLocaleString());
 
   // Stepper UI
   function Stepper() {
@@ -97,7 +115,8 @@ export default function Home() {
       stepContent = (
         <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700/50 text-center">
           <h3 className="text-xl font-bold text-orange-500 mb-2">Pro Feature</h3>
-          <p className="text-slate-300 mb-4">Dip Buy Planner is available for Pro users only.</p>
+          <p className="text-slate-300 mb-2">Dip Buy Planner is available for Pro users only.</p>
+          <p className="text-slate-400 mb-4">(Coming Soon!)</p>
           <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg">Upgrade to Pro</button>
         </div>
       );
@@ -118,7 +137,8 @@ export default function Home() {
       stepContent = (
         <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700/50 text-center">
           <h3 className="text-xl font-bold text-orange-500 mb-2">Pro Feature</h3>
-          <p className="text-slate-300 mb-4">Results are available for Pro users only.</p>
+          <p className="text-slate-300 mb-2">Results are available for Pro users only.</p>
+          <p className="text-slate-400 mb-4">(Coming Soon!)</p>
           <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg">Upgrade to Pro</button>
         </div>
       );

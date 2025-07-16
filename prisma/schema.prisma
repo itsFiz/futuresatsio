@@ -57,6 +57,7 @@ model RetirementPlan {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   dipBuys DipBuy[]
+  simulationData SimulationData[]
 
   @@map("retirement_plans")
 }

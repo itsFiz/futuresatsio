@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Bitcoin, Target, TrendingUp, DollarSign, Calendar, Calculator, Info, ChevronDown, X } from "lucide-react";
+import { Bitcoin, TrendingUp, DollarSign, Calendar, Calculator, Info, ChevronDown, X } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ReferenceLine } from "recharts";
 import { fetchBTCData, updateCAGRModels, type BTCMarketData, type CAGRModel } from "@/lib/btcData";
 
@@ -49,10 +49,70 @@ const INITIAL_CAGR_MODELS: CAGRModel[] = [
     startPrice: 36000,
     desc: "Power Law, least aggressive, starts at $36k"
   },
+  {
+    name: "Model 8",
+    cagr: [40.0, 39.0, 38.0, 37.0, 36.0, 35.0, 34.0, 33.0, 32.0, 31.0, 30.0, 29.0, 28.0, 27.0, 26.0, 25.0, 24.0, 23.0, 22.0, 21.0, 20.0, 19.0, 18.0, 17.0, 16.0, 15.0, 14.0, 13.0, 12.0, 10.0],
+    startPrice: 0, // Placeholder, will use current price
+    desc: "Most aggressive CAGR with current live Bitcoin price (highest volatility, not recommended for long-term planning)"
+  },
+  {
+    name: "Model 9",
+    cagr: [25.0, 24.2, 23.4, 22.6, 21.9, 21.1, 20.4, 19.7, 19.0, 18.3, 17.7, 17.0, 16.4, 15.8, 15.2, 14.6, 14.0, 13.5, 12.9, 12.4, 11.9, 11.4, 10.9, 10.4, 9.9, 9.4, 9.0, 8.5, 8.1, 7.7],
+    startPrice: 0, // Will use current price
+    desc: "Moderate CAGR with current live Bitcoin price (less volatile than Model 8)"
+  },
+  {
+    name: "Model 10",
+    cagr: [20.0, 19.4, 18.8, 18.2, 17.6, 17.1, 16.5, 16.0, 15.4, 14.9, 14.4, 13.9, 13.4, 12.9, 12.4, 11.9, 11.4, 10.9, 10.4, 9.9, 9.4, 8.9, 8.4, 7.9, 7.4, 6.9, 6.4, 5.9, 5.4, 4.9],
+    startPrice: 0, // Will use current price
+    desc: "Conservative CAGR with current live Bitcoin price (most conservative real-time model)"
+  },
 ];
 
 const MODEL_DETAILS = `\
-Models are categorized into two groups:\n\n1st category (Models 1-4):\nThese are CAGR (Compound Annual Growth Rate) models that start from different initial percentages and decrease smoothly over 30 years, ranging from the most aggressive (Model 1) to the least aggressive (Model 4).\nPrice calculations for these models begin with Bitcoin’s True Market Mean, currently at $64,934. This true market mean can be seen as bitcoin's current fair value, as bitcoin spends half the time above and half the time below this mean. We use this true market mean instead of the current Bitcoin price to reduce the impact of price volatility and produce more realistic results. This approach also provides a good average of Bitcoin’s 4-year bull and bear cycles, which I've found works well for these models.\n\n2nd category (Models 5-7):\nBased on the Power Law model, these models feature roughly similar CAGR percentages but with a slightly faster decreasing slope. The starting Bitcoin prices for each model, determined at the end of the last year, are: Model 5: $100,000, Model 6: $68,000, Model 7: $36,000. The default Model 6 is a nice mix.\n\nSee the info icon for more details on each model.`;
+Models are categorized into three groups:\n\n1st category (Models 1-4):\nThese are CAGR (Compound Annual Growth Rate) models that start from different initial percentages and decrease smoothly over 30 years, ranging from the most aggressive (Model 1) to the least aggressive (Model 4).\nPrice calculations for these models begin with Bitcoin's True Market Mean, currently at $64,934. This true market mean can be seen as bitcoin's current fair value, as bitcoin spends half the time above and half the time below this mean. We use this true market mean instead of the current Bitcoin price to reduce the impact of price volatility and produce more realistic results. This approach also provides a good average of Bitcoin's 4-year bull and bear cycles, which I've found works well for these models.\n\n2nd category (Models 5-7):\nBased on the Power Law model, these models feature roughly similar CAGR percentages but with a slightly faster decreasing slope. The starting Bitcoin prices for each model, determined at the end of the last year, are: Model 5: $100,000, Model 6: $68,000, Model 7: $36,000. The default Model 6 is a nice mix.\n\n3rd category (Models 8-10):\nThese models use the current live Bitcoin price as the starting point. Model 8 has the most aggressive CAGR (starts at 40%), Model 9 offers moderate CAGR (starts at 25%), and Model 10 provides the most conservative CAGR (starts at 20%). These models are more volatile due to using real-time pricing but provide options for different risk tolerances.\n\nSee the info icon for more details on each model.`;
+
+// Enhanced model details with categories and aggressiveness levels
+const MODEL_CATEGORIES = [
+  {
+    name: "True Market Mean Models",
+    description: "Start from Bitcoin's True Market Mean ($64,934) - fair value that smooths out volatility",
+    models: [
+      { index: 0, name: "Apex", aggressiveness: "Most Aggressive", color: "text-red-400", bgColor: "bg-red-400/10", borderColor: "border-red-400/30" },
+      { index: 1, name: "Cipher", aggressiveness: "Aggressive", color: "text-orange-400", bgColor: "bg-orange-400/10", borderColor: "border-orange-400/30" },
+      { index: 2, name: "Vector", aggressiveness: "Moderate", color: "text-yellow-400", bgColor: "bg-yellow-400/10", borderColor: "border-yellow-400/30" },
+      { index: 3, name: "Matrix", aggressiveness: "Conservative", color: "text-green-400", bgColor: "bg-green-400/10", borderColor: "border-green-400/30" }
+    ]
+  },
+  {
+    name: "Power Law Models", 
+    description: "Based on Power Law theory with different starting prices and steeper CAGR decline",
+    models: [
+      { index: 4, name: "Neural", aggressiveness: "Most Aggressive", color: "text-red-400", bgColor: "bg-red-400/10", borderColor: "border-red-400/30", startPrice: "$100,000" },
+      { index: 5, name: "Synth", aggressiveness: "Balanced (Default)", color: "text-blue-400", bgColor: "bg-blue-400/10", borderColor: "border-blue-400/30", startPrice: "$68,000" },
+      { index: 6, name: "Core", aggressiveness: "Conservative", color: "text-green-400", bgColor: "bg-green-400/10", borderColor: "border-green-400/30", startPrice: "$36,000" }
+    ]
+  },
+  {
+    name: "Current Price Models",
+    description: "Uses the current live Bitcoin price as the starting point. Models 9-10 have more conservative CAGR values.",
+    models: [
+      { index: 7, name: "Flux", aggressiveness: "Aggressive (Live)", color: "text-red-400", bgColor: "bg-pink-400/10", borderColor: "border-pink-400/30", isCurrentPrice: true },
+      { index: 8, name: "Pulse", aggressiveness: "Moderate (Live)", color: "text-yellow-400", bgColor: "bg-yellow-400/10", borderColor: "border-yellow-400/30", isCurrentPrice: true },
+      { index: 9, name: "Wave", aggressiveness: "Conservative (Live)", color: "text-green-400", bgColor: "bg-green-400/10", borderColor: "border-green-400/30", isCurrentPrice: true }
+    ]
+  },
+  {
+    name: "Community Models",
+    description: "User-submitted models with unique thesis and approaches to Bitcoin price modeling.",
+    models: [
+      { index: 10, name: "Submit Your Model", aggressiveness: "Community", color: "text-purple-400", bgColor: "bg-purple-400/10", borderColor: "border-purple-400/30", isSubmitButton: true }
+    ]
+  }
+];
+
+const COMPARISON_DETAILS = `\
+How the 2 categories compare:\n\nBoth categories include models across the aggressive and conservative spectrum. However, the comparison between the two depends on expectations regarding the pace of Bitcoin price appreciation.\n\nFor example:\n• Models 1 and 5 are comparable and represent the most aggressive options. Model 1 starts slower, while Model 5 starts faster; however, both are similar in the middle stages, and Model 1 ends up much higher in later years.\n• Models 2 and 6 are also comparable; Model 2 starts slower while Model 6 starts faster, both peaking similarly in the middle stages, with Model 2 ending higher as its CAGR remains on the higher side.\n• Models 4 and 7 are the most conservative, with differences in how quickly the price increases.\n\nThe default Model 6, which utilizes a more conservative median line of the Power Law, offers a balanced mix. It presents reasonable but not excessive prices in the initial years, when Bitcoin is still early in the adoption curve. Additionally, it features a faster decrease with diminishing returns in later years, ensuring that the results remain conservative for retirement planning purposes.`;
 
 const WITHDRAWAL_MODELS = [
   { value: 'default', label: 'Default', desc: 'Decreasing slope from 10%→3% for first 20 years' },
@@ -60,6 +120,15 @@ const WITHDRAWAL_MODELS = [
   { value: 'custom', label: 'Custom Slope', desc: 'Set your own max/min % and duration for slope' },
   { value: 'none', label: 'No Withdrawal', desc: 'No withdrawals' },
 ];
+
+const CAGR_EXPLANATION = `\
+Decreasing CAGR (Compound Annual Growth Rate) Model
+
+Better to use CAGR than yearly returns to smooth volatility in calculations.
+
+For example: a 24% CAGR over 4 years is the same as +100% for 3 years and -70% in the 4th year.
+
+CAGR provides a consistent, smoothed growth rate that accounts for the compound effect of volatility over time, making long-term projections more realistic and easier to understand.`;
 
 interface SimulationParams {
   targetYear: number;
@@ -78,8 +147,8 @@ interface BTCRetirementSimulatorProps {
   format: (amount: number, to: string) => string;
   currencyLoading: boolean;
   rates: Record<string, number>;
-  state?: any;
-  setState?: (s: any) => void;
+  state?: SimulationParams;
+  setState?: (s: SimulationParams) => void;
 }
 
 // Helper function for responsive font size
@@ -119,9 +188,11 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
   };
   const [params, setParamsInternal] = useState(state || defaultParams);
   // Keep parent in sync
-  const setParams = (val: any) => {
+  const setParams = (val: SimulationParams) => {
     setParamsInternal(val);
-    setState && setState(val);
+    if (setState) {
+      setState(val);
+    }
   };
   useEffect(() => {
     if (state) setParamsInternal(state);
@@ -129,11 +200,14 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
 
   const [selectedModel, setSelectedModel] = useState(5); // Default to Model 6 (index 5)
   const [showModelModal, setShowModelModal] = useState(false);
-  const [cagrMode, setCagrMode] = useState<'model' | 'custom'>('model');
+  const [showComparisonModal, setShowComparisonModal] = useState(false);
+  const [cagrMode, setCagrMode] = useState<'model' | 'fixed' | 'customSlope'>('model');
   const [withdrawalModel, setWithdrawalModel] = useState('default');
   const [fixedWithdrawal, setFixedWithdrawal] = useState(5); // %
   const [customSlope, setCustomSlope] = useState({ max: 10, min: 3, years: 20 });
   const [showWithdrawalInfo, setShowWithdrawalInfo] = useState(false);
+  const [showModelInfo, setShowModelInfo] = useState(false);
+  const [showCAGRInfo, setShowCAGRInfo] = useState(false);
   const [showCAGRModal, setShowCAGRModal] = useState(false);
   const [btcData, setBtcData] = useState<BTCMarketData | null>(null);
   const [cagrModels, setCagrModels] = useState<CAGRModel[]>(INITIAL_CAGR_MODELS);
@@ -176,7 +250,7 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
     loadBTCData();
   }, []);
 
-  const handleInputChange = (field: keyof typeof params, value: number) => {
+  const handleInputChange = (field: keyof SimulationParams, value: number) => {
     setParams({ ...params, [field]: value });
   };
 
@@ -202,28 +276,29 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
 
   const calculateProjection = () => {
     const model = cagrModels[selectedModel];
-    // Convert model start price to selected currency (model prices are in USD)
-    const modelStartPriceInCurrency = convertUSDToSelectedCurrency(model.startPrice);
+    // Use current price for Models 8, 9, 10 (indices 7, 8, 9), otherwise use model's startPrice
+    // Models 1-4 (indices 0-3) use True Market Mean ($64,934)
+    // Models 5-7 (indices 4-6) use their specific startPrice values
+    const modelStartPriceInCurrency = ((selectedModel >= 7 && selectedModel <= 9) && btcData)
+      ? convertUSDToSelectedCurrency(btcData.currentPrice)
+      : convertUSDToSelectedCurrency(model.startPrice);
     let totalBTC = params.startingBTC;
     let totalInvested = 0;
     let currentDCA = params.monthlyDCA;
     let prevPortfolioValue = params.startingBTC * modelStartPriceInCurrency;
-    let prevBTC = params.startingBTC;
-    let prevPrincipal = prevPortfolioValue;
     let prevBTCPrice = modelStartPriceInCurrency;
     const projection = [];
     const pad = (n: number) => n.toString().padStart(2, '0');
     const formatDate = (day: number, month: number, year: number) => `${pad(day)}/${pad(month)}/${year}`;
     const startDay = 1;
-    let startYear = params.currentYear;
-    let startMonth = params.startMonth; // 1-12
+    const startMonth = params.startMonth; // 1-12
     const retirementYear = params.targetYear;
     const withdrawalStartYear = params.withdrawalStartYear;
     const retirementDate = formatDate(startDay, startMonth, retirementYear);
     const withdrawalStartDate = formatDate(startDay, startMonth, withdrawalStartYear);
     const withdrawalStartIdx = params.withdrawalStartYear - params.currentYear;
     for (let i = 0, year = params.currentYear; year <= params.targetYear; year++, i++) {
-      const cagr = (cagrMode === 'custom' ? params.btcCAGR : model.cagr[i]) ?? model.cagr[model.cagr.length - 1];
+      const cagr = (cagrMode === 'customSlope' ? params.btcCAGR : model.cagr[i]) ?? model.cagr[model.cagr.length - 1];
       const btcPrice = (i === 0)
         ? modelStartPriceInCurrency
         : prevBTCPrice * (1 + cagr / 100);
@@ -239,7 +314,7 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
       // Portfolio return (gain from previous year)
       const portfolioReturn = i === 0 ? null : portfolioValue - prevPortfolioValue;
       // Withdrawal logic
-      let withdrawalPct = getWithdrawalPct(i, withdrawalStartIdx);
+      const withdrawalPct = getWithdrawalPct(i, withdrawalStartIdx);
       let withdrawalAmount = 0;
       if (withdrawalPct > 0) {
         withdrawalAmount = portfolioValue * (withdrawalPct / 100);
@@ -249,8 +324,6 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
       const remainingBTC = totalBTC - (withdrawalAmount / btcPrice);
       // Save for next year
       prevPortfolioValue = remainingPrincipal;
-      prevBTC = remainingBTC;
-      prevPrincipal = remainingPrincipal;
       prevBTCPrice = btcPrice;
               // Push row
         projection.push({
@@ -485,11 +558,121 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
             <h2 className="text-xl font-bold text-white mb-4">Models Detailed Explanations</h2>
             <pre className="text-slate-300 whitespace-pre-wrap text-sm mb-4">{MODEL_DETAILS}</pre>
             <div className="space-y-2">
-              {cagrModels.map((m: CAGRModel, i: number) => (
+              {cagrModels.map((m: CAGRModel) => (
                 <div key={m.name} className="bg-slate-800 rounded-lg p-3 border border-slate-700">
                   <span className="font-semibold text-orange-400">{m.name}:</span> <span className="text-slate-300">{m.desc}</span>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Comparison Modal */}
+      {showComparisonModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="bg-slate-900 rounded-xl p-8 max-w-4xl w-full border border-slate-700 shadow-xl relative max-h-[90vh] overflow-y-auto">
+            <button
+              className="absolute top-3 right-3 text-slate-400 hover:text-orange-400"
+              onClick={() => setShowComparisonModal(false)}
+              title="Close"
+            >
+              ×
+            </button>
+            <h2 className="text-2xl font-bold text-white mb-6">Model Categories Comparison</h2>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+              {/* True Market Mean Models */}
+              <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
+                <h3 className="text-xl font-bold text-orange-400 mb-4">True Market Mean Models</h3>
+                <div className="space-y-3">
+                  <div className="text-slate-300 text-sm mb-4">
+                    Start from Bitcoin&apos;s True Market Mean ($64,934) - fair value that smooths out volatility and provides a good average of Bitcoin&apos;s 4-year bull and bear cycles.
+                  </div>
+                  <div className="space-y-2">
+                    {MODEL_CATEGORIES[0].models.map((model) => (
+                      <div key={model.name} className={`p-3 rounded-lg border ${model.borderColor} ${model.bgColor}`}>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className={`font-bold ${model.color}`}>{model.name}</div>
+                            <div className="text-slate-300 text-sm">{model.aggressiveness}</div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-slate-400 text-sm">Start: $64,934</div>
+                            <div className="text-slate-400 text-xs">1 BTC</div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Power Law Models */}
+              <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
+                <h3 className="text-xl font-bold text-blue-400 mb-4">Power Law Models</h3>
+                <div className="space-y-3">
+                  <div className="text-slate-300 text-sm mb-4">
+                    Based on Power Law theory with different starting prices and steeper CAGR decline. Features faster decrease with diminishing returns in later years.
+                  </div>
+                  <div className="space-y-2">
+                    {MODEL_CATEGORIES[1].models.map((model) => (
+                      <div key={model.name} className={`p-3 rounded-lg border ${model.borderColor} ${model.bgColor}`}>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className={`font-bold ${model.color}`}>{model.name}</div>
+                            <div className="text-slate-300 text-sm">{model.aggressiveness}</div>
+                          </div>
+                                                     <div className="text-right">
+                             <div className="text-slate-400 text-sm">Start: {'startPrice' in model ? model.startPrice : '$64,934'}</div>
+                             <div className="text-slate-400 text-xs">1 BTC</div>
+                           </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Comparison Details */}
+            <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
+              <h3 className="text-lg font-bold text-white mb-4">How Categories Compare</h3>
+              <pre className="text-slate-300 whitespace-pre-wrap text-sm">{COMPARISON_DETAILS}</pre>
+            </div>
+
+            {/* Quick Reference Table */}
+            <div className="mt-6 bg-slate-800/50 rounded-xl p-6 border border-slate-700">
+              <h3 className="text-lg font-bold text-white mb-4">Quick Reference</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-slate-600">
+                      <th className="text-left py-2 px-3 text-slate-300">Category</th>
+                      <th className="text-left py-2 px-3 text-slate-300">Models</th>
+                      <th className="text-left py-2 px-3 text-slate-300">Start Price (1 BTC)</th>
+                      <th className="text-left py-2 px-3 text-slate-300">CAGR Slope</th>
+                      <th className="text-left py-2 px-3 text-slate-300">Best For</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b border-slate-700/30">
+                      <td className="py-2 px-3 text-orange-400 font-semibold">True Market Mean</td>
+                      <td className="py-2 px-3 text-slate-300">1-4</td>
+                      <td className="py-2 px-3 text-slate-300">$64,934</td>
+                      <td className="py-2 px-3 text-slate-300">Smooth, slow drop</td>
+                      <td className="py-2 px-3 text-slate-300">Cycle-averaged, fair-value</td>
+                    </tr>
+                    <tr className="border-b border-slate-700/30">
+                      <td className="py-2 px-3 text-blue-400 font-semibold">Power Law</td>
+                      <td className="py-2 px-3 text-slate-300">5-7</td>
+                      <td className="py-2 px-3 text-slate-300">$100k, $68k, $36k</td>
+                      <td className="py-2 px-3 text-slate-300">Steeper drop</td>
+                      <td className="py-2 px-3 text-slate-300">Trend-based, conservative</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -518,39 +701,204 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
                 <input
                   type="radio"
                   className="accent-orange-500"
-                  checked={cagrMode === 'custom'}
-                  onChange={() => setCagrMode('custom')}
+                  checked={cagrMode === 'fixed'}
+                  onChange={() => setCagrMode('fixed')}
                 />
-                <span className="text-slate-300 font-semibold">Custom CAGR</span>
+                <span className="text-slate-300 font-semibold">Fixed CAGR</span>
               </label>
+              <label className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  className="accent-orange-500"
+                  checked={cagrMode === 'customSlope'}
+                  onChange={() => setCagrMode('customSlope')}
+                />
+                <span className="text-slate-300 font-semibold">Custom Slope</span>
+              </label>
+              <span className="relative group">
+                <Info 
+                  className="w-4 h-4 text-slate-400 hover:text-orange-400 cursor-pointer transition-colors" 
+                  onMouseEnter={() => setShowCAGRInfo(true)} 
+                  onMouseLeave={() => setShowCAGRInfo(false)}
+                />
+                {showCAGRInfo && (
+                  <div className="absolute z-20 left-1/2 -translate-x-1/2 mt-2 w-80 bg-slate-900 text-slate-100 text-xs rounded-lg shadow-lg p-3 border border-slate-700">
+                    <pre className="whitespace-pre-wrap">{CAGR_EXPLANATION}</pre>
+                  </div>
+                )}
+              </span>
             </div>
             {cagrMode === 'model' && (
-              <div className="flex items-center space-x-2">
-                <label className="text-slate-300 font-semibold">Model:</label>
-                <div className="relative w-40">
-                  <select
-                    className="appearance-none w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-10"
-                    value={selectedModel}
-                    onChange={e => setSelectedModel(Number(e.target.value))}
-                  >
-                    {cagrModels.map((m: CAGRModel, i: number) => (
-                      <option key={m.name} value={i}>{m.name}</option>
-                    ))}
-                  </select>
-                  <ChevronDown className="w-5 h-5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <div className="space-y-4">
+                {/* Model Categories */}
+                <div className="space-y-3">
+                  {MODEL_CATEGORIES.map((category, categoryIndex) => (
+                    <div key={category.name} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="text-slate-200 font-semibold text-sm">{category.name}</h4>
+                          <p className="text-slate-400 text-xs">{category.description}</p>
+                        </div>
+                        {categoryIndex === 0 && (
+                          <button
+                            onClick={() => setShowComparisonModal(true)}
+                            className="text-xs text-orange-400 hover:text-orange-300 transition-colors underline"
+                          >
+                            Compare Categories
+                          </button>
+                        )}
+                      </div>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        {category.models.map((model) => (
+                          <button
+                            key={model.name}
+                            onClick={() => {
+                              if ('isSubmitButton' in model && model.isSubmitButton) {
+                                window.location.href = '/submit-model';
+                              } else {
+                                setSelectedModel(model.index);
+                              }
+                            }}
+                            className={`relative p-3 rounded-lg border transition-all duration-200 ${
+                              'isSubmitButton' in model && model.isSubmitButton
+                                ? 'bg-purple-500/20 border-purple-400/50 hover:bg-purple-500/30 hover:border-purple-400/70'
+                                : selectedModel === model.index
+                                ? `${model.bgColor} ${model.borderColor} border-2 ring-2 ring-orange-500/50`
+                                : 'bg-slate-700/30 border-slate-600/50 hover:bg-slate-700/50'
+                            }`}
+                          >
+                            <div className="text-center space-y-1">
+                              <div className={`font-bold text-sm ${model.color}`}>
+                                {model.name}
+                              </div>
+                              <div className="text-xs text-slate-300">
+                                {model.aggressiveness}
+                              </div>
+                              {'startPrice' in model && model.startPrice && (
+                                <div className="text-xs text-slate-400">
+                                  {model.startPrice}
+                                </div>
+                              )}
+                              {selectedModel === model.index && (
+                                <div className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full"></div>
+                              )}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <button
-                  className="flex items-center text-slate-400 hover:text-orange-400 transition-colors"
-                  onClick={() => setShowModelModal(true)}
-                  title="Model Details"
-                >
-                  <Info className="w-5 h-5 ml-1" />
-                </button>
+                
+                {/* Current Model Info */}
+                <div className="bg-slate-700/30 rounded-lg p-3 border border-slate-600/50">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-sm font-semibold text-slate-200">
+                        Selected: {cagrModels[selectedModel]?.name}
+                      </div>
+                      <div className="text-xs text-slate-400">
+                        {cagrModels[selectedModel]?.desc}
+                      </div>
+                      {/* Show warning for current price models */}
+                      {(selectedModel >= 7 && selectedModel <= 9) && (
+                        <div className="mt-2 text-xs text-pink-400 font-semibold flex items-center gap-1">
+                          <Info className="w-4 h-4 inline-block mr-1" />
+                          This model uses the current live Bitcoin price. Results may be volatile and are not recommended for long-term planning.
+                        </div>
+                      )}
+                    </div>
+                    <span className="relative group">
+                      <Info 
+                        className="w-4 h-4 text-slate-400 hover:text-orange-400 cursor-pointer transition-colors" 
+                        onMouseEnter={() => setShowModelInfo(true)} 
+                        onMouseLeave={() => setShowModelInfo(false)}
+                      />
+                      {showModelInfo && (
+                        <div className="absolute z-20 left-1/2 -translate-x-1/2 mt-2 w-80 bg-slate-900 text-slate-100 text-xs rounded-lg shadow-lg p-3 border border-slate-700">
+                          {selectedModel >= 0 && selectedModel <= 3 ? (
+                            <>
+                              <div className="font-semibold text-orange-400 mb-2">True Market Mean Models (1-4)</div>
+                              <div className="space-y-2">
+                                <div>
+                                  <span className="font-semibold text-slate-300">Start Price:</span> $64,934 (True Market Mean)
+                                </div>
+                                <div>
+                                  <span className="font-semibold text-slate-300">Rationale:</span> Bitcoin&apos;s fair value that smooths out volatility. Bitcoin spends half the time above and half below this mean.
+                                </div>
+                                <div>
+                                  <span className="font-semibold text-slate-300">CAGR Pattern:</span> Smooth decrease from initial percentage over 30 years
+                                </div>
+                                <div>
+                                  <span className="font-semibold text-slate-300">Best For:</span> Long-term retirement planning with stable projections
+                                </div>
+                                <div className="mt-3 pt-2 border-t border-slate-600">
+                                  <div className="text-xs text-slate-400">
+                                    <span className="font-semibold">Why CAGR?</span> CAGR smooths volatility - a 24% CAGR over 4 years equals +100% for 3 years and -70% in year 4.
+                                  </div>
+                                </div>
+                              </div>
+                            </>
+                          ) : selectedModel >= 4 && selectedModel <= 6 ? (
+                            <>
+                              <div className="font-semibold text-blue-400 mb-2">Power Law Models (5-7)</div>
+                              <div className="space-y-2">
+                                <div>
+                                  <span className="font-semibold text-slate-300">Start Price:</span> $100k, $68k, $36k (Model specific)
+                                </div>
+                                <div>
+                                  <span className="font-semibold text-slate-300">Rationale:</span> Based on Power Law theory with steeper CAGR decline
+                                </div>
+                                <div>
+                                  <span className="font-semibold text-slate-300">CAGR Pattern:</span> Faster decrease with diminishing returns in later years
+                                </div>
+                                <div>
+                                  <span className="font-semibold text-slate-300">Best For:</span> Trend-based, conservative retirement planning
+                                </div>
+                                <div className="mt-3 pt-2 border-t border-slate-600">
+                                  <div className="text-xs text-slate-400">
+                                    <span className="font-semibold">Why CAGR?</span> CAGR smooths volatility - a 24% CAGR over 4 years equals +100% for 3 years and -70% in year 4.
+                                  </div>
+                                </div>
+                              </div>
+                            </>
+                          ) : selectedModel >= 7 && selectedModel <= 9 ? (
+                            <>
+                              <div className="font-semibold text-pink-400 mb-2">Current Price Models (8-10)</div>
+                              <div className="space-y-2">
+                                <div>
+                                  <span className="font-semibold text-slate-300">Start Price:</span> Current live Bitcoin price
+                                </div>
+                                <div>
+                                  <span className="font-semibold text-slate-300">Rationale:</span> Uses real-time pricing for immediate market conditions
+                                </div>
+                                <div>
+                                  <span className="font-semibold text-slate-300">CAGR Pattern:</span> Various conservative to aggressive slopes
+                                </div>
+                                <div>
+                                  <span className="font-semibold text-slate-300">Best For:</span> Short-term planning (not recommended for long-term)
+                                </div>
+                                <div className="mt-3 pt-2 border-t border-slate-600">
+                                  <div className="text-xs text-slate-400">
+                                    <span className="font-semibold">Why CAGR?</span> CAGR smooths volatility - a 24% CAGR over 4 years equals +100% for 3 years and -70% in year 4.
+                                  </div>
+                                </div>
+                              </div>
+                            </>
+                          ) : (
+                            <div className="text-slate-300">Select a model to see details</div>
+                          )}
+                        </div>
+                      )}
+                    </span>
+                  </div>
+                </div>
               </div>
             )}
-            {cagrMode === 'custom' && (
+            {cagrMode === 'fixed' && (
               <div className="flex items-center space-x-2 mt-2">
-                <label className="text-slate-300 font-semibold">Custom CAGR (%)</label>
+                <label className="text-slate-300 font-semibold">Fixed CAGR (%)</label>
                 <input
                   type="number"
                   value={params.btcCAGR}
@@ -560,6 +908,49 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
                   max="100"
                   step="0.1"
                 />
+              </div>
+            )}
+            {cagrMode === 'customSlope' && (
+              <div className="flex items-center space-x-2 mt-2">
+                <label className="text-slate-300 font-semibold">Custom Slope</label>
+                <div className="flex flex-wrap gap-2 items-center">
+                  <div>
+                    <label className="text-slate-300 font-semibold">Max %</label>
+                    <input
+                      type="number"
+                      value={customSlope.max}
+                      onChange={e => setCustomSlope(s => ({ ...s, max: Number(e.target.value) }))}
+                      className="w-16 px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-slate-300 font-semibold">Min %</label>
+                    <input
+                      type="number"
+                      value={customSlope.min}
+                      onChange={e => setCustomSlope(s => ({ ...s, min: Number(e.target.value) }))}
+                      className="w-16 px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-slate-300 font-semibold">Years</label>
+                    <input
+                      type="number"
+                      value={customSlope.years}
+                      onChange={e => setCustomSlope(s => ({ ...s, years: Number(e.target.value) }))}
+                      className="w-16 px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      min="1"
+                      max="100"
+                      step="1"
+                    />
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -759,7 +1150,23 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
 
       {/* Quick Summary */}
       <div className="bg-gradient-to-br from-slate-800/70 to-purple-900/60 rounded-2xl p-8 border border-slate-700/50 shadow-xl">
-        <h3 className="text-2xl font-bold text-white mb-6">Projection Summary</h3>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-2xl font-bold text-white">Projection Summary</h3>
+          {cagrMode === 'model' && (
+            <div className="flex items-center space-x-2">
+              <div className="text-xs text-slate-400">Model:</div>
+              <div className="px-3 py-1 rounded-full text-xs font-semibold bg-slate-700/50 border border-slate-600">
+                {(() => {
+                  const category = MODEL_CATEGORIES.find(cat => 
+                    cat.models.some(model => model.index === selectedModel)
+                  );
+                  const model = category?.models.find(m => m.index === selectedModel);
+                  return `${model?.name} (${category?.name === 'True Market Mean Models' ? 'TMM' : 'PL'})`;
+                })()}
+              </div>
+            </div>
+          )}
+        </div>
         <div className="flex flex-col md:flex-row gap-4 md:gap-6 justify-between items-stretch">
           {/* Retirement BTC Card */}
           <div className="flex-1 min-w-[180px] bg-slate-900/60 rounded-xl shadow-md p-6 flex flex-col items-center justify-center">
@@ -914,12 +1321,7 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
                   : isWithdrawal
                   ? 'text-teal-400 font-bold'
                   : 'text-white font-medium';
-                const dateClass = (type: 'start' | 'end') =>
-                  isRetirement
-                    ? 'text-pink-400 font-bold'
-                    : isWithdrawal
-                    ? 'text-teal-400 font-bold'
-                    : 'text-slate-300';
+
                 return (
                   <tr key={row.year} className="border-b border-slate-700/30 hover:bg-slate-700/20">
                     <td className={`py-3 px-4 ${yearClass}`}>{row.year}</td>
@@ -1009,7 +1411,7 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
                 <div>
                   <h3 className="text-lg font-semibold text-white mb-2">What is it:</h3>
                   <p className="text-sm leading-relaxed">
-                    This shows bitcoin's Compound Annual Growth Rate (CAGR) vs other assets over various 
+                    This shows bitcoin&apos;s Compound Annual Growth Rate (CAGR) vs other assets over various 
                     timeframes. For example this is showing that bitcoin has returned 155% on average, every year, for the past 5 
                     years, while gold has returned 7% on average each year over the same period.
                   </p>
@@ -1018,8 +1420,8 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
                 <div>
                   <h3 className="text-lg font-semibold text-white mb-2">Why it matters:</h3>
                   <p className="text-sm leading-relaxed">
-                    As with the historical bitcoin price table, we see bitcoin's extreme outperformance vs other 
-                    assets here as well. These CAGR numbers solidify bitcoin's status as the best performing financial asset in 
+                    As with the historical bitcoin price table, we see bitcoin&apos;s extreme outperformance vs other 
+                    assets here as well. These CAGR numbers solidify bitcoin&apos;s status as the best performing financial asset in 
                     history.
                   </p>
                 </div>

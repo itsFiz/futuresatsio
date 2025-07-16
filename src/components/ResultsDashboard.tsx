@@ -86,7 +86,14 @@ export default function ResultsDashboard({ currency, convert, format, currencyLo
     generateData();
   }, []);
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: {
+    active?: boolean;
+    payload?: Array<{
+      value?: number;
+      dataKey?: string;
+    }>;
+    label?: string;
+  }) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-slate-800 border border-slate-600 rounded-lg p-3 shadow-lg">
@@ -171,7 +178,7 @@ export default function ResultsDashboard({ currency, convert, format, currencyLo
                 { year: 2043, amount: 1500000, btcPrice: 200000 },
                 { year: 2047, amount: 2000000, btcPrice: 250000 },
               ];
-              downloadRetirementBlueprint(plan, dipBuys, chartData);
+              downloadRetirementBlueprint(plan, dipBuys);
             }}
             className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
           >
@@ -308,7 +315,7 @@ export default function ResultsDashboard({ currency, convert, format, currencyLo
           <div className="mt-6 p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
             <h4 className="text-green-400 font-semibold mb-2">🎯 Goal Achievement</h4>
             <p className="text-slate-300 text-sm">
-              You're on track to reach {finalResult?.btcAccumulated.toFixed(1)} BTC by 2055, 
+              You&apos;re on track to reach {finalResult?.btcAccumulated.toFixed(1)} BTC by 2055, 
               exceeding the 5 BTC retirement goal!
             </p>
           </div>

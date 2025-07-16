@@ -14,24 +14,28 @@ interface DipBuyPlannerProps {
   convert: (amount: number, to: string) => number;
   format: (amount: number, to: string) => string;
   currencyLoading: boolean;
-  state?: any;
-  setState?: (s: any) => void;
+  state?: DipBuy[];
+  setState?: (s: DipBuy[]) => void;
 }
 
 export default function DipBuyPlanner({ currency, convert, format, currencyLoading, state, setState }: DipBuyPlannerProps) {
   const currentYear = new Date().getFullYear();
-  const defaultDipBuys = [
+  const defaultDipBuys: DipBuy[] = [
     { year: 2039, amount: 1000000, btcPrice: 150000 },
     { year: 2043, amount: 1500000, btcPrice: 200000 },
     { year: 2047, amount: 2000000, btcPrice: 250000 },
   ];
-  const [dipBuys, setDipBuysInternal] = useState(state || defaultDipBuys);
-  const setDipBuys = (val: any) => {
+  const [dipBuys, setDipBuysInternal] = useState<DipBuy[]>(state || defaultDipBuys);
+  const setDipBuys = (val: DipBuy[]) => {
     setDipBuysInternal(val);
-    setState && setState(val);
+    if (setState) {
+      setState(val);
+    }
   };
   useEffect(() => {
-    if (state) setDipBuysInternal(state);
+    if (state) {
+      setDipBuysInternal(state);
+    }
   }, [state]);
 
   const [showAddForm, setShowAddForm] = useState(false);
@@ -52,15 +56,15 @@ export default function DipBuyPlanner({ currency, convert, format, currencyLoadi
   };
 
   const removeDipBuy = (index: number) => {
-    setDipBuys(dipBuys.filter((_, i) => i !== index));
+    setDipBuys(dipBuys.filter((_: DipBuy, i: number) => i !== index));
   };
 
   const calculateDipBTC = (amount: number, price: number) => {
     return amount / price;
   };
 
-  const totalDipInvestment = dipBuys.reduce((sum: number, dip: any) => sum + dip.amount, 0);
-  const totalDipBTC = dipBuys.reduce((sum: number, dip: any) => sum + calculateDipBTC(dip.amount, dip.btcPrice), 0);
+  const totalDipInvestment = dipBuys.reduce((sum: number, dip: DipBuy) => sum + dip.amount, 0);
+  const totalDipBTC = dipBuys.reduce((sum: number, dip: DipBuy) => sum + calculateDipBTC(dip.amount, dip.btcPrice), 0);
 
   return (
     <div className="space-y-8">
@@ -159,7 +163,7 @@ export default function DipBuyPlanner({ currency, convert, format, currencyLoadi
           </div>
         ) : (
           <div className="space-y-4">
-            {dipBuys.map((dip: any, index: number) => (
+            {dipBuys.map((dip: DipBuy, index: number) => (
               <div key={index} className="bg-slate-700/30 rounded-lg p-4 border border-slate-600/50">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">

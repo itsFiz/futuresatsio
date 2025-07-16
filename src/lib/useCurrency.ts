@@ -104,10 +104,8 @@ export function useCurrency(selected: string = "MYR") {
         minimumFractionDigits: 0,
       });
       
-      console.log(`Formatting ${amount} to ${to}: ${formatted}`);
       return formatted;
     } catch (error) {
-      console.error('Format error:', error);
       // Fallback formatting
       return `${to} ${amount.toLocaleString()}`;
     }

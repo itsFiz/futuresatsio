@@ -91,22 +91,22 @@ export function updateCAGRModels(
   const models = [...originalModels];
   
   if (btcData) {
-    // Update existing models with real-time starting price
-    const trueMarketMean = calculateTrueMarketMean(btcData.priceHistory);
+    // Calculate true market mean for reference
+    // const trueMarketMean = calculateTrueMarketMean(btcData.priceHistory);
     const currentPrice = btcData.currentPrice;
     
-    // Use current price or true market mean, whichever is more conservative
-    const basePrice = Math.min(currentPrice, trueMarketMean || currentPrice);
-    
-    // Update the first few models to use real-time data
+    // Models 1-4 (indices 0-3) should keep their True Market Mean startPrice of $64,934
+    // Only update Models 8-10 (indices 7-9) to use current price
     models.forEach((model, index) => {
-      if (index < 4) { // Update first 4 models
-        model.startPrice = basePrice;
-        model.desc = `${model.desc.split(',')[0]}, updated with real-time price: $${basePrice.toFixed(2)}`;
+      if (index >= 7 && index <= 9) { // Models 8, 9, 10 (indices 7, 8, 9)
+        model.startPrice = currentPrice;
+        model.desc = `${model.desc.split(',')[0]}, updated with current price: $${currentPrice.toFixed(2)}`;
       }
+      // Models 1-4 (indices 0-3) keep their original startPrice of $64,934 (True Market Mean)
+      // Models 5-7 (indices 4-6) keep their original startPrice values ($100k, $68k, $36k)
     });
     
-    // Add a real-time model
+    // Add a real-time model if needed
     const realTimeModel = createRealTimeModel(btcData);
     if (realTimeModel) {
       models.push(realTimeModel);
