@@ -95,7 +95,7 @@ const MODEL_CATEGORIES = [
   },
   {
     name: "Current Price Models",
-    description: "Uses the current live Bitcoin price as the starting point. Models 9-10 have more conservative CAGR values.",
+    description: "Uses the current live Bitcoin price as the starting point.",
     models: [
       { index: 7, name: "Flux", aggressiveness: "Aggressive (Live)", color: "text-red-400", bgColor: "bg-pink-400/10", borderColor: "border-pink-400/30", isCurrentPrice: true },
       { index: 8, name: "Pulse", aggressiveness: "Moderate (Live)", color: "text-yellow-400", bgColor: "bg-yellow-400/10", borderColor: "border-yellow-400/30", isCurrentPrice: true },
@@ -112,7 +112,7 @@ const MODEL_CATEGORIES = [
 ];
 
 const COMPARISON_DETAILS = `\
-How the 2 categories compare:\n\nBoth categories include models across the aggressive and conservative spectrum. However, the comparison between the two depends on expectations regarding the pace of Bitcoin price appreciation.\n\nFor example:\n• Models 1 and 5 are comparable and represent the most aggressive options. Model 1 starts slower, while Model 5 starts faster; however, both are similar in the middle stages, and Model 1 ends up much higher in later years.\n• Models 2 and 6 are also comparable; Model 2 starts slower while Model 6 starts faster, both peaking similarly in the middle stages, with Model 2 ending higher as its CAGR remains on the higher side.\n• Models 4 and 7 are the most conservative, with differences in how quickly the price increases.\n\nThe default Model 6, which utilizes a more conservative median line of the Power Law, offers a balanced mix. It presents reasonable but not excessive prices in the initial years, when Bitcoin is still early in the adoption curve. Additionally, it features a faster decrease with diminishing returns in later years, ensuring that the results remain conservative for retirement planning purposes.`;
+How the 3 categories compare:\n\nAll three categories include models across the aggressive and conservative spectrum. However, the comparison between them depends on expectations regarding the pace of Bitcoin price appreciation and your risk tolerance.\n\nFor example:\n• Apex (Model 1), Neural (Model 5), and Flux (Model 8) are comparable and represent the most aggressive options. Apex starts from True Market Mean, Neural starts from Power Law theory, and Flux uses current live price. Apex starts slower but ends higher, Neural starts faster with steeper decline, and Flux is most volatile due to live pricing.\n• Cipher (Model 2), Synth (Model 6), and Pulse (Model 9) are also comparable; Cipher starts slower from True Market Mean, Synth starts faster from Power Law, and Pulse uses current price with moderate CAGR. Cipher ends higher due to slower CAGR decline, while Synth has faster decline, and Pulse is volatile but moderate.\n• Matrix (Model 4), Core (Model 7), and Wave (Model 10) are the most conservative, with Matrix using True Market Mean (most stable), Core using Power Law theory, and Wave using current price (most volatile but conservative CAGR).\n\nThe default Synth (Model 6), which utilizes a more conservative median line of the Power Law, offers a balanced mix. It presents reasonable but not excessive prices in the initial years, when Bitcoin is still early in the adoption curve. Additionally, it features a faster decrease with diminishing returns in later years, ensuring that the results remain conservative for retirement planning purposes.\n\nCurrent Price Models (Flux, Pulse, Wave) are generally not recommended for long-term retirement planning due to their volatility, but they can be useful for short-term projections or when you want to see how current market conditions affect your projections.`;
 
 const WITHDRAWAL_MODELS = [
   { value: 'default', label: 'Default', desc: 'Decreasing slope from 10%→3% for first 20 years' },
@@ -206,7 +206,7 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
   const [fixedWithdrawal, setFixedWithdrawal] = useState(5); // %
   const [customSlope, setCustomSlope] = useState({ max: 10, min: 3, years: 20 });
   const [showWithdrawalInfo, setShowWithdrawalInfo] = useState(false);
-  const [showModelInfo, setShowModelInfo] = useState(false);
+  // const [showModelInfo, setShowModelInfo] = useState(false);
   const [showCAGRInfo, setShowCAGRInfo] = useState(false);
   const [showCAGRModal, setShowCAGRModal] = useState(false);
   const [btcData, setBtcData] = useState<BTCMarketData | null>(null);
@@ -581,7 +581,7 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
             </button>
             <h2 className="text-2xl font-bold text-white mb-6">Model Categories Comparison</h2>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
               {/* True Market Mean Models */}
               <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
                 <h3 className="text-xl font-bold text-orange-400 mb-4">True Market Mean Models</h3>
@@ -633,6 +633,32 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
                   </div>
                 </div>
               </div>
+
+              {/* Current Price Models */}
+              <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
+                <h3 className="text-xl font-bold text-pink-400 mb-4">Current Price Models</h3>
+                <div className="space-y-3">
+                  <div className="text-slate-300 text-sm mb-4">
+                    Uses the current live Bitcoin price as the starting point. More volatile due to real-time pricing but provides options for different risk tolerances.
+                  </div>
+                  <div className="space-y-2">
+                    {MODEL_CATEGORIES[2].models.map((model) => (
+                      <div key={model.name} className={`p-3 rounded-lg border ${model.borderColor} ${model.bgColor}`}>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className={`font-bold ${model.color}`}>{model.name}</div>
+                            <div className="text-slate-300 text-sm">{model.aggressiveness}</div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-slate-400 text-sm">Start: Live Price</div>
+                            <div className="text-slate-400 text-xs">1 BTC</div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Comparison Details */}
@@ -670,6 +696,13 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
                       <td className="py-2 px-3 text-slate-300">Steeper drop</td>
                       <td className="py-2 px-3 text-slate-300">Trend-based, conservative</td>
                     </tr>
+                    <tr className="border-b border-slate-700/30">
+                      <td className="py-2 px-3 text-pink-400 font-semibold">Current Price</td>
+                      <td className="py-2 px-3 text-slate-300">8-10</td>
+                      <td className="py-2 px-3 text-slate-300">Live Price</td>
+                      <td className="py-2 px-3 text-slate-300">Various slopes</td>
+                      <td className="py-2 px-3 text-slate-300">Short-term planning (volatile)</td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -678,16 +711,17 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
         </div>
       )}
       {/* Input Form */}
-      <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50">
-        <h3 className="text-2xl font-bold text-white mb-6 flex items-center space-x-2">
-          <Calculator className="w-6 h-6 text-orange-500" />
-          <span>BTC Retirement Parameters</span>
-        </h3>
-        {/* Parameter Controls Row */}
-        <div className="flex flex-col md:flex-row md:items-end md:space-x-6 space-y-4 md:space-y-0 mb-8">
-          {/* CAGR Mode and Model/Custom */}
-          <div className="flex-1 min-w-[220px]">
-            <div className="flex items-center space-x-4 mb-2">
+      <div className="space-y-8">
+        {/* Model Selection Section */}
+        <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50">
+          <h3 className="text-xl font-bold text-white mb-6 flex items-center space-x-2">
+            <TrendingUp className="w-5 h-5 text-blue-500" />
+            <span>Growth Model Selection</span>
+          </h3>
+          
+          {/* CAGR Mode Selection */}
+          <div className="mb-6">
+            <div className="flex flex-wrap items-center gap-4 mb-4">
               <label className="flex items-center space-x-2">
                 <input
                   type="radio"
@@ -728,12 +762,13 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
                 )}
               </span>
             </div>
+            
             {cagrMode === 'model' && (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {/* Model Categories */}
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {MODEL_CATEGORIES.map((category, categoryIndex) => (
-                    <div key={category.name} className="space-y-2">
+                    <div key={category.name} className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div>
                           <h4 className="text-slate-200 font-semibold text-sm">{category.name}</h4>
@@ -747,44 +782,260 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
                             Compare Categories
                           </button>
                         )}
+                        {categoryIndex === 1 && (
+                          <a
+                            href="https://charts.bitbo.io/long-term-power-law/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-blue-400 hover:text-blue-300 transition-colors underline"
+                          >
+                            View Power Law Chart
+                          </a>
+                        )}
                       </div>
                       
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                         {category.models.map((model) => (
-                          <button
-                            key={model.name}
-                            onClick={() => {
-                              if ('isSubmitButton' in model && model.isSubmitButton) {
-                                window.location.href = '/submit-model';
-                              } else {
-                                setSelectedModel(model.index);
-                              }
-                            }}
-                            className={`relative p-3 rounded-lg border transition-all duration-200 ${
-                              'isSubmitButton' in model && model.isSubmitButton
-                                ? 'bg-purple-500/20 border-purple-400/50 hover:bg-purple-500/30 hover:border-purple-400/70'
-                                : selectedModel === model.index
-                                ? `${model.bgColor} ${model.borderColor} border-2 ring-2 ring-orange-500/50`
-                                : 'bg-slate-700/30 border-slate-600/50 hover:bg-slate-700/50'
-                            }`}
-                          >
-                            <div className="text-center space-y-1">
-                              <div className={`font-bold text-sm ${model.color}`}>
-                                {model.name}
-                              </div>
-                              <div className="text-xs text-slate-300">
-                                {model.aggressiveness}
-                              </div>
-                              {'startPrice' in model && model.startPrice && (
-                                <div className="text-xs text-slate-400">
-                                  {model.startPrice}
+                          <div key={model.name} className="relative">
+                            <button
+                              onClick={() => {
+                                if ('isSubmitButton' in model && model.isSubmitButton) {
+                                  window.location.href = '/submit-model';
+                                } else {
+                                  setSelectedModel(model.index);
+                                }
+                              }}
+                              className={`relative p-4 rounded-lg border transition-all duration-200 hover:scale-105 w-full ${
+                                'isSubmitButton' in model && model.isSubmitButton
+                                  ? 'bg-purple-500/20 border-purple-400/50 hover:bg-purple-500/30 hover:border-purple-400/70'
+                                  : selectedModel === model.index
+                                  ? `${model.bgColor} ${model.borderColor} border-2 ring-2 ring-orange-500/50 shadow-lg`
+                                  : 'bg-slate-700/30 border-slate-600/50 hover:bg-slate-700/50 hover:border-slate-500'
+                              }`}
+                            >
+                              <div className="text-center space-y-2">
+                                <div className={`font-bold text-sm ${model.color}`}>
+                                  {model.name}
                                 </div>
-                              )}
-                              {selectedModel === model.index && (
-                                <div className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full"></div>
-                              )}
-                            </div>
-                          </button>
+                                <div className="text-xs text-slate-300">
+                                  {model.aggressiveness}
+                                </div>
+                                {'startPrice' in model && model.startPrice && (
+                                  <div className="text-xs text-slate-400">
+                                    {model.startPrice}
+                                  </div>
+                                )}
+                                {selectedModel === model.index && (
+                                  <div className="absolute -top-2 -right-2 w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center">
+                                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                                  </div>
+                                )}
+                              </div>
+                            </button>
+                            
+                            {/* Info Icon - Outside the button */}
+                            {!('isSubmitButton' in model && model.isSubmitButton) && (
+                              <div className="absolute top-2 right-2">
+                                <div className="relative group">
+                                  <Info className="w-4 h-4 text-slate-400 hover:text-orange-400 cursor-pointer transition-colors" />
+                                  
+                                  {/* Individual Model Tooltip */}
+                                  <div className="absolute z-20 left-1/2 -translate-x-1/2 mt-2 w-80 bg-slate-900 text-slate-100 text-xs rounded-lg shadow-lg p-3 border border-slate-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                                    {model.index === 0 && (
+                                      <>
+                                        <div className="font-semibold text-orange-400 mb-2">Apex (Model 1)</div>
+                                        <div className="space-y-2">
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Start Price:</span> $64,934 (True Market Mean)
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Initial CAGR:</span> 45.0%
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Description:</span> Most aggressive True Market Mean model with smooth decrease from 45%
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Best For:</span> Very aggressive long-term planning
+                                          </div>
+                                        </div>
+                                      </>
+                                    )}
+                                    {model.index === 1 && (
+                                      <>
+                                        <div className="font-semibold text-orange-400 mb-2">Cipher (Model 2)</div>
+                                        <div className="space-y-2">
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Start Price:</span> $64,934 (True Market Mean)
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Initial CAGR:</span> 40.0%
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Description:</span> Aggressive True Market Mean model with smooth decrease from 40%
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Best For:</span> Aggressive long-term planning
+                                          </div>
+                                        </div>
+                                      </>
+                                    )}
+                                    {model.index === 2 && (
+                                      <>
+                                        <div className="font-semibold text-orange-400 mb-2">Vector (Model 3)</div>
+                                        <div className="space-y-2">
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Start Price:</span> $64,934 (True Market Mean)
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Initial CAGR:</span> 35.0%
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Description:</span> Moderate True Market Mean model with smooth decrease from 35%
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Best For:</span> Balanced long-term planning
+                                          </div>
+                                        </div>
+                                      </>
+                                    )}
+                                    {model.index === 3 && (
+                                      <>
+                                        <div className="font-semibold text-orange-400 mb-2">Matrix (Model 4)</div>
+                                        <div className="space-y-2">
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Start Price:</span> $64,934 (True Market Mean)
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Initial CAGR:</span> 30.0%
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Description:</span> Conservative True Market Mean model with smooth decrease from 30%
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Best For:</span> Conservative long-term planning
+                                          </div>
+                                        </div>
+                                      </>
+                                    )}
+                                    {model.index === 4 && (
+                                      <>
+                                        <div className="font-semibold text-blue-400 mb-2">Neural (Model 5)</div>
+                                        <div className="space-y-2">
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Start Price:</span> $100,000
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Initial CAGR:</span> 48.4%
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Description:</span> Most aggressive Power Law model, starts at $100k
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Best For:</span> Very aggressive trend-based planning
+                                          </div>
+                                        </div>
+                                      </>
+                                    )}
+                                    {model.index === 5 && (
+                                      <>
+                                        <div className="font-semibold text-blue-400 mb-2">Synth (Model 6) - Default</div>
+                                        <div className="space-y-2">
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Start Price:</span> $68,000
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Initial CAGR:</span> 48.8%
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Description:</span> Balanced Power Law model, starts at $68k (default)
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Best For:</span> Balanced trend-based planning
+                                          </div>
+                                        </div>
+                                      </>
+                                    )}
+                                    {model.index === 6 && (
+                                      <>
+                                        <div className="font-semibold text-blue-400 mb-2">Core (Model 7)</div>
+                                        <div className="space-y-2">
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Start Price:</span> $36,000
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Initial CAGR:</span> 50.0%
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Description:</span> Conservative Power Law model, starts at $36k
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Best For:</span> Conservative trend-based planning
+                                          </div>
+                                        </div>
+                                      </>
+                                    )}
+                                    {model.index === 7 && (
+                                      <>
+                                        <div className="font-semibold text-pink-400 mb-2">Flux (Model 8)</div>
+                                        <div className="space-y-2">
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Start Price:</span> Current live Bitcoin price
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Initial CAGR:</span> 40.0%
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Description:</span> Most aggressive CAGR with current live Bitcoin price
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-red-400">⚠️ Warning:</span> Highest volatility, not recommended for long-term planning
+                                          </div>
+                                        </div>
+                                      </>
+                                    )}
+                                    {model.index === 8 && (
+                                      <>
+                                        <div className="font-semibold text-pink-400 mb-2">Pulse (Model 9)</div>
+                                        <div className="space-y-2">
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Start Price:</span> Current live Bitcoin price
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Initial CAGR:</span> 25.0%
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Description:</span> Moderate CAGR with current live Bitcoin price
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-yellow-400">⚠️ Warning:</span> Less volatile than Flux but still not recommended for long-term
+                                          </div>
+                                        </div>
+                                      </>
+                                    )}
+                                    {model.index === 9 && (
+                                      <>
+                                        <div className="font-semibold text-pink-400 mb-2">Wave (Model 10)</div>
+                                        <div className="space-y-2">
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Start Price:</span> Current live Bitcoin price
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Initial CAGR:</span> 20.0%
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-300">Description:</span> Conservative CAGR with current live Bitcoin price
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-yellow-400">⚠️ Warning:</span> Most conservative real-time model but still volatile
+                                          </div>
+                                        </div>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -792,26 +1043,26 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
                 </div>
                 
                 {/* Current Model Info */}
-                <div className="bg-slate-700/30 rounded-lg p-3 border border-slate-600/50">
+                <div className="bg-slate-700/30 rounded-lg p-4 border border-slate-600/50">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-sm font-semibold text-slate-200">
+                    <div className="flex-1">
+                      <div className="text-sm font-semibold text-slate-200 mb-1">
                         Selected: {cagrModels[selectedModel]?.name}
                       </div>
-                      <div className="text-xs text-slate-400">
+                      <div className="text-xs text-slate-400 mb-2">
                         {cagrModels[selectedModel]?.desc}
                       </div>
                       {/* Show warning for current price models */}
                       {(selectedModel >= 7 && selectedModel <= 9) && (
-                        <div className="mt-2 text-xs text-pink-400 font-semibold flex items-center gap-1">
+                        <div className="text-xs text-pink-400 font-semibold flex items-center gap-1">
                           <Info className="w-4 h-4 inline-block mr-1" />
                           This model uses the current live Bitcoin price. Results may be volatile and are not recommended for long-term planning.
                         </div>
                       )}
                     </div>
-                    <span className="relative group">
+                    {/* <span className="relative group ml-4">
                       <Info 
-                        className="w-4 h-4 text-slate-400 hover:text-orange-400 cursor-pointer transition-colors" 
+                        className="w-5 h-5 text-slate-400 hover:text-orange-400 cursor-pointer transition-colors" 
                         onMouseEnter={() => setShowModelInfo(true)} 
                         onMouseLeave={() => setTimeout(() => setShowModelInfo(false), 100)}
                       />
@@ -905,19 +1156,19 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
                           )}
                         </div>
                       )}
-                    </span>
+                    </span> */}
                   </div>
                 </div>
               </div>
             )}
             {cagrMode === 'fixed' && (
-              <div className="flex items-center space-x-2 mt-2">
+              <div className="flex items-center space-x-4">
                 <label className="text-slate-300 font-semibold">Fixed CAGR (%)</label>
                 <input
                   type="number"
                   value={params.btcCAGR}
                   onChange={(e) => handleInputChange('btcCAGR', parseFloat(e.target.value))}
-                  className="w-24 px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-32 px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
                   min="0"
                   max="100"
                   step="0.1"
@@ -925,40 +1176,40 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
               </div>
             )}
             {cagrMode === 'customSlope' && (
-              <div className="flex items-center space-x-2 mt-2">
-                <label className="text-slate-300 font-semibold">Custom Slope</label>
-                <div className="flex flex-wrap gap-2 items-center">
+              <div className="space-y-4">
+                <label className="text-slate-300 font-semibold">Custom Slope Parameters</label>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="text-slate-300 font-semibold">Max %</label>
+                    <label className="text-slate-300 text-sm mb-2 block">Max %</label>
                     <input
                       type="number"
                       value={customSlope.max}
                       onChange={e => setCustomSlope(s => ({ ...s, max: Number(e.target.value) }))}
-                      className="w-16 px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
                       min="0"
                       max="100"
                       step="0.1"
                     />
                   </div>
                   <div>
-                    <label className="text-slate-300 font-semibold">Min %</label>
+                    <label className="text-slate-300 text-sm mb-2 block">Min %</label>
                     <input
                       type="number"
                       value={customSlope.min}
                       onChange={e => setCustomSlope(s => ({ ...s, min: Number(e.target.value) }))}
-                      className="w-16 px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
                       min="0"
                       max="100"
                       step="0.1"
                     />
                   </div>
                   <div>
-                    <label className="text-slate-300 font-semibold">Years</label>
+                    <label className="text-slate-300 text-sm mb-2 block">Years</label>
                     <input
                       type="number"
                       value={customSlope.years}
                       onChange={e => setCustomSlope(s => ({ ...s, years: Number(e.target.value) }))}
-                      className="w-16 px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
                       min="1"
                       max="100"
                       step="1"
@@ -968,11 +1219,20 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
               </div>
             )}
           </div>
+        </div>
+
+        {/* Parameters Section */}
+        <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50">
+          <h3 className="text-xl font-bold text-white mb-6 flex items-center space-x-2">
+            <Calculator className="w-5 h-5 text-orange-500" />
+            <span>Retirement Parameters</span>
+          </h3>
+          
           {/* Withdrawal Model */}
-          <div className="flex-1 min-w-[220px]">
-            <label className="block text-sm font-medium text-slate-300 mb-2 flex items-center">
+          <div className="mb-8">
+            <label className="block text-sm font-medium text-slate-300 mb-3 flex items-center">
               Withdrawal Model
-              <span className="ml-1 relative group">
+              <span className="ml-2 relative group">
                 <Info className="w-4 h-4 text-slate-400 hover:text-orange-400 cursor-pointer" onMouseEnter={() => setShowWithdrawalInfo(true)} onMouseLeave={() => setShowWithdrawalInfo(false)} />
                 {showWithdrawalInfo && (
                   <div className="absolute z-20 left-1/2 -translate-x-1/2 mt-2 w-64 bg-slate-900 text-slate-100 text-xs rounded-lg shadow-lg p-3 border border-slate-700">
@@ -985,7 +1245,7 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
                 )}
               </span>
             </label>
-            <div className="relative w-40">
+            <div className="relative w-48">
               <select
                 className="appearance-none w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-10"
                 value={withdrawalModel}
@@ -999,13 +1259,13 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
             </div>
             {/* Fixed Withdrawal % input */}
             {withdrawalModel === 'fixed' && (
-              <div className="mt-2 flex items-center space-x-2">
-                <label className="text-slate-300 font-semibold">Fixed %</label>
+              <div className="mt-4 flex items-center space-x-4">
+                <label className="text-slate-300 font-semibold">Fixed Withdrawal %</label>
                 <input
                   type="number"
                   value={fixedWithdrawal}
                   onChange={e => setFixedWithdrawal(Number(e.target.value))}
-                  className="w-20 px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-32 px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
                   min="0"
                   max="100"
                   step="0.1"
@@ -1014,149 +1274,153 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
             )}
             {/* Custom Slope inputs */}
             {withdrawalModel === 'custom' && (
-              <div className="mt-2 flex flex-wrap gap-2 items-center">
-                <div>
-                  <label className="text-slate-300 font-semibold">Max %</label>
-                  <input
-                    type="number"
-                    value={customSlope.max}
-                    onChange={e => setCustomSlope(s => ({ ...s, max: Number(e.target.value) }))}
-                    className="w-16 px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    min="0"
-                    max="100"
-                    step="0.1"
-                  />
-                </div>
-                <div>
-                  <label className="text-slate-300 font-semibold">Min %</label>
-                  <input
-                    type="number"
-                    value={customSlope.min}
-                    onChange={e => setCustomSlope(s => ({ ...s, min: Number(e.target.value) }))}
-                    className="w-16 px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    min="0"
-                    max="100"
-                    step="0.1"
-                  />
-                </div>
-                <div>
-                  <label className="text-slate-300 font-semibold">Years</label>
-                  <input
-                    type="number"
-                    value={customSlope.years}
-                    onChange={e => setCustomSlope(s => ({ ...s, years: Number(e.target.value) }))}
-                    className="w-16 px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    min="1"
-                    max="100"
-                    step="1"
-                  />
+              <div className="mt-4 space-y-4">
+                <label className="text-slate-300 font-semibold">Custom Withdrawal Slope</label>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-slate-300 text-sm mb-2 block">Max %</label>
+                    <input
+                      type="number"
+                      value={customSlope.max}
+                      onChange={e => setCustomSlope(s => ({ ...s, max: Number(e.target.value) }))}
+                      className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-slate-300 text-sm mb-2 block">Min %</label>
+                    <input
+                      type="number"
+                      value={customSlope.min}
+                      onChange={e => setCustomSlope(s => ({ ...s, min: Number(e.target.value) }))}
+                      className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-slate-300 text-sm mb-2 block">Years</label>
+                    <input
+                      type="number"
+                      value={customSlope.years}
+                      onChange={e => setCustomSlope(s => ({ ...s, years: Number(e.target.value) }))}
+                      className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      min="1"
+                      max="100"
+                      step="1"
+                    />
+                  </div>
                 </div>
               </div>
             )}
           </div>
-        </div>
-        {/* Main Parameter Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Target Year */}
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
-              Target Retirement Year
-            </label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="number"
-                value={params.targetYear}
-                onChange={(e) => handleInputChange('targetYear', parseInt(e.target.value))}
-                className="w-full pl-10 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                min={currentYear + 1}
-                max={2100}
-              />
+
+          {/* Main Parameter Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Target Year */}
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                Target Retirement Year
+              </label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="number"
+                  value={params.targetYear}
+                  onChange={(e) => handleInputChange('targetYear', parseInt(e.target.value))}
+                  className="w-full pl-10 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  min={currentYear + 1}
+                  max={2100}
+                />
+              </div>
             </div>
-          </div>
-          {/* Start Month */}
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2 flex items-center">
-              <Calendar className="w-4 h-4 mr-2 text-slate-400" /> Start Month
-            </label>
-            <div className="relative">
-              <select
-                value={params.startMonth}
-                onChange={e => handleInputChange('startMonth', parseInt(e.target.value))}
-                className="appearance-none w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-10"
-              >
-                {[...Array(12)].map((_, i) => (
-                  <option key={i+1} value={i+1}>{new Date(2000, i, 1).toLocaleString('default', { month: 'long' })}</option>
-                ))}
-              </select>
-              <ChevronDown className="w-5 h-5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            {/* Start Month */}
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2 flex items-center">
+                <Calendar className="w-4 h-4 mr-2 text-slate-400" /> Start Month
+              </label>
+              <div className="relative">
+                <select
+                  value={params.startMonth}
+                  onChange={e => handleInputChange('startMonth', parseInt(e.target.value))}
+                  className="appearance-none w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-10"
+                >
+                  {[...Array(12)].map((_, i) => (
+                    <option key={i+1} value={i+1}>{new Date(2000, i, 1).toLocaleString('default', { month: 'long' })}</option>
+                  ))}
+                </select>
+                <ChevronDown className="w-5 h-5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
             </div>
-          </div>
-          {/* Withdrawal Start Year */}
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2 flex items-center">
-              <Calendar className="w-4 h-4 mr-2 text-slate-400" /> Withdrawal Start Year
-            </label>
-            <div className="relative">
-              <select
-                value={params.withdrawalStartYear}
-                onChange={e => handleInputChange('withdrawalStartYear', parseInt(e.target.value))}
-                className="appearance-none w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-10"
-              >
-                {Array.from({length: params.targetYear - params.currentYear + 1}, (_, i) => params.currentYear + i).map(y => (
-                  <option key={y} value={y}>{y}</option>
-                ))}
-              </select>
-              <ChevronDown className="w-5 h-5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            {/* Withdrawal Start Year */}
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2 flex items-center">
+                <Calendar className="w-4 h-4 mr-2 text-slate-400" /> Withdrawal Start Year
+              </label>
+              <div className="relative">
+                <select
+                  value={params.withdrawalStartYear}
+                  onChange={e => handleInputChange('withdrawalStartYear', parseInt(e.target.value))}
+                  className="appearance-none w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-10"
+                >
+                  {Array.from({length: params.targetYear - params.currentYear + 1}, (_, i) => params.currentYear + i).map(y => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
+                <ChevronDown className="w-5 h-5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
             </div>
-          </div>
-          {/* Starting BTC */}
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
-              Starting BTC Amount
-            </label>
-            <div className="relative">
-              <Bitcoin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="number"
-                step="0.01"
-                value={params.startingBTC}
-                onChange={(e) => handleInputChange('startingBTC', parseFloat(e.target.value))}
-                className="w-full pl-10 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                min="0"
-              />
+            {/* Starting BTC */}
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                Starting BTC Amount
+              </label>
+              <div className="relative">
+                <Bitcoin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="number"
+                  step="0.01"
+                  value={params.startingBTC}
+                  onChange={(e) => handleInputChange('startingBTC', parseFloat(e.target.value))}
+                  className="w-full pl-10 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  min="0"
+                />
+              </div>
             </div>
-          </div>
-          {/* Monthly DCA */}
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
-              Monthly DCA ({currency})
-            </label>
-            <div className="relative">
-              <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="number"
-                value={params.monthlyDCA}
-                onChange={(e) => handleInputChange('monthlyDCA', parseInt(e.target.value))}
-                className="w-full pl-10 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                min="0"
-              />
+            {/* Monthly DCA */}
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                Monthly DCA ({currency})
+              </label>
+              <div className="relative">
+                <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="number"
+                  value={params.monthlyDCA}
+                  onChange={(e) => handleInputChange('monthlyDCA', parseInt(e.target.value))}
+                  className="w-full pl-10 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  min="0"
+                />
+              </div>
             </div>
-          </div>
-          {/* DCA Growth Rate */}
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
-              DCA Growth Rate (RM/month)
-            </label>
-            <div className="relative">
-              <TrendingUp className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="number"
-                value={params.dcaGrowthRate}
-                onChange={(e) => handleInputChange('dcaGrowthRate', parseInt(e.target.value))}
-                className="w-full pl-10 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                min="0"
-              />
+            {/* DCA Growth Rate */}
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                DCA Growth Rate ({currency}/month)
+              </label>
+              <div className="relative">
+                <TrendingUp className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="number"
+                  value={params.dcaGrowthRate}
+                  onChange={(e) => handleInputChange('dcaGrowthRate', parseInt(e.target.value))}
+                  className="w-full pl-10 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  min="0"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -1208,8 +1472,8 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
           {/* Total Invested */}
           <div className="flex-1 min-w-[180px] bg-slate-900/60 rounded-xl shadow-md p-6 flex flex-col items-center justify-center">
             <div className="text-slate-300 text-base font-medium mb-2 text-center">Total Invested</div>
-            <div className={`font-extrabold text-blue-400 text-center w-full px-2 break-words ${getResponsiveFontSize(currencyLoading ? '' : format(convert(finalResult?.totalInvested || 0, currency), currency))}`}>
-              {currencyLoading ? '...' : format(convert(finalResult?.totalInvested || 0, currency), currency)}
+            <div className={`font-extrabold text-blue-400 text-center w-full px-2 break-words ${getResponsiveFontSize(currencyLoading ? '' : format(finalResult?.totalInvested || 0, currency))}`}>
+              {currencyLoading ? '...' : format(finalResult?.totalInvested || 0, currency)}
             </div>
           </div>
           {/* ROI Multiplier */}
@@ -1281,7 +1545,7 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
             <LineChart data={projection.map(row => ({
               ...row,
               portfolioValue: currencyLoading ? 0 : row.totalValue,
-              totalInvested: currencyLoading ? 0 : convert(row.totalInvested, currency),
+              totalInvested: currencyLoading ? 0 : row.totalInvested,
             }))} margin={{ top: 10, right: 60, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
               <XAxis dataKey="year" stroke="#9CA3AF" tick={{ fill: '#9CA3AF' }} />

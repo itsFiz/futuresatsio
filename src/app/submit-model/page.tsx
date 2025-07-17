@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ArrowLeft, Send, Info, AlertCircle } from "lucide-react";
 import Link from "next/link";
+import toast, { Toaster } from "react-hot-toast";
 
 interface ModelSubmission {
   modelName: string;
@@ -42,6 +43,7 @@ export default function SubmitModelPage() {
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: "" }));
+      toast.success('Field error cleared!');
     }
   };
 
@@ -65,6 +67,13 @@ export default function SubmitModelPage() {
     if (!formData.agreeToTerms) newErrors.agreeToTerms = "You must agree to the terms";
 
     setErrors(newErrors);
+    
+    if (Object.keys(newErrors).length > 0) {
+      toast.error('Please fix the errors in the form before submitting.');
+    } else {
+      toast.success('Form validation passed!');
+    }
+    
     return Object.keys(newErrors).length === 0;
   };
 
@@ -75,17 +84,33 @@ export default function SubmitModelPage() {
 
     setIsSubmitting(true);
     
+    const loadingToast = toast.loading('Submitting your model...');
+    
+    const submitPromise = fetch('/api/submit-model', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    });
+
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Here you would typically send the data to your backend
-      console.log("Model submission:", formData);
-      
+      const response = await submitPromise;
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to submit model');
+      }
+
+      toast.dismiss(loadingToast);
+      toast.success('Model submitted successfully! Check your email for confirmation.');
       setSubmitSuccess(true);
     } catch (error) {
       console.error("Submission error:", error);
-      setErrors({ submit: "Failed to submit model. Please try again." });
+      const errorMessage = error instanceof Error ? error.message : 'Failed to submit model. Please try again.';
+      toast.dismiss(loadingToast);
+      toast.error(errorMessage);
+      setErrors({ submit: errorMessage });
     } finally {
       setIsSubmitting(false);
     }
@@ -116,6 +141,29 @@ export default function SubmitModelPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900">
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#1e293b',
+            color: '#f1f5f9',
+            border: '1px solid #475569',
+          },
+          success: {
+            iconTheme: {
+              primary: '#10b981',
+              secondary: '#f1f5f9',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#f1f5f9',
+            },
+          },
+        }}
+      />
       {/* Header */}
       <div className="bg-slate-800/50 backdrop-blur-sm border-b border-slate-700/50">
         <div className="max-w-6xl mx-auto px-4 py-6">

@@ -1,12 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Bitcoin, Calculator, TrendingUp, BarChart3, CheckCircle, ArrowRight, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 import BTCRetirementSimulator from "@/components/BTCRetirementSimulator";
 import ResultsDashboard from "@/components/ResultsDashboard";
 import DipBuyPlanner from "@/components/DipBuyPlanner";
 import CurrencySelector from "@/components/CurrencySelector";
 import { useCurrency } from "@/lib/useCurrency";
+import { useSession, signOut } from "next-auth/react";
 
 // Import types from components
 interface SimulationParams {
@@ -47,6 +50,8 @@ const steps = [
 ];
 
 export default function Home() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const isProUser = false; // Hardcoded for now
   const [step, setStep] = useState(0);
   const [currency, setCurrency] = useState("MYR");
@@ -56,6 +61,13 @@ export default function Home() {
   const [simulatorState, setSimulatorState] = useState<SimulationParams | undefined>(undefined); // Will be set by child
   const [dipBuyState, setDipBuyState] = useState<DipBuy[] | undefined>(undefined);
   // Removed withdrawalState
+
+  // Admin redirection effect
+  useEffect(() => {
+    if (status === "authenticated" && session?.user?.role === "ADMIN") {
+      router.push("/admin");
+    }
+  }, [status, session, router]);
 
   // Error boundary effect
   useEffect(() => {
@@ -117,7 +129,7 @@ export default function Home() {
           <h3 className="text-xl font-bold text-orange-500 mb-2">Pro Feature</h3>
           <p className="text-slate-300 mb-2">Dip Buy Planner is available for Pro users only.</p>
           <p className="text-slate-400 mb-4">(Coming Soon!)</p>
-          <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg">Upgrade to Pro</button>
+          <Link href="/pricing" className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg inline-block">Upgrade to Pro</Link>
         </div>
       );
     } else {
@@ -139,7 +151,7 @@ export default function Home() {
           <h3 className="text-xl font-bold text-orange-500 mb-2">Pro Feature</h3>
           <p className="text-slate-300 mb-2">Results are available for Pro users only.</p>
           <p className="text-slate-400 mb-4">(Coming Soon!)</p>
-          <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg">Upgrade to Pro</button>
+          <Link href="/pricing" className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg inline-block">Upgrade to Pro</Link>
         </div>
       );
     } else {
@@ -173,14 +185,35 @@ export default function Home() {
               <span className="text-slate-400 text-sm">BTC Retirement Planner</span>
             </div>
             <div className="flex items-center space-x-4">
-              <CurrencySelector value={currency} onChange={setCurrency} />
               {currencyLoading && <span className="text-orange-400 text-sm">Loading rates...</span>}
-              <button className="text-slate-300 hover:text-white transition-colors">
-                Sign In
-              </button>
-              <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors">
+              {status === "authenticated" && session?.user ? (
+                <>
+                  <span className="text-slate-200 text-sm font-medium">
+                    {session.user.name || session.user.email}
+                  </span>
+                  {session.user.role === "ADMIN" && (
+                    <Link 
+                      href="/admin" 
+                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors"
+                    >
+                      Admin
+                    </Link>
+                  )}
+                  <button
+                    onClick={() => signOut({ callbackUrl: "/" })}
+                    className="bg-slate-700 hover:bg-slate-800 text-white px-4 py-2 rounded-lg transition-colors"
+                  >
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <Link href="/auth/signin" className="text-slate-300 hover:text-white transition-colors">
+                  Sign In
+                </Link>
+              )}
+              <Link href="/pricing" className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors">
                 Get Pro
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -229,7 +262,7 @@ export default function Home() {
       <footer className="border-t border-slate-700/50 bg-slate-900/50 backdrop-blur-sm mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center text-slate-400">
-            <p>&copy; 2025 FutureSats.io - Built by Fiz @ <a href="https://f12.gg" target="_blank" rel="noopener noreferrer" className="underline hover:text-orange-400">F12.GG</a></p>  
+            <p>&copy; 2025 FutureSats.io - Built by <a href="https://x.com/criedfizcken" target="_blank" rel="noopener noreferrer" className="underline hover:text-orange-400">@criedfizcken</a> @ <a href="https://f12.gg" target="_blank" rel="noopener noreferrer" className="underline hover:text-orange-400">F12.GG</a></p>  
             <p className="text-xs text-slate-500 mt-1">Inspired by <a href="https://bitcoincompounding.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-orange-400">bitcoincompounding.com</a> - <a href="https://x.com/bitcoinhornet" target="_blank" rel="noopener noreferrer" className="underline hover:text-orange-400">@bitcoinhornet</a></p>
             <p className="text-sm mt-2">
               Plan your Bitcoin retirement with confidence
@@ -237,6 +270,11 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* Floating Currency Selector */}
+      <div className="fixed bottom-6 right-6 z-[10000]">
+        <CurrencySelector value={currency} onChange={setCurrency} />
+      </div>
     </div>
   );
 }

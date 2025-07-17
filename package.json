@@ -13,22 +13,28 @@
     "db:studio": "prisma studio",
     "seed": "tsx prisma/seed.ts",
     "init-btc": "node scripts/init-btc-data-simple.js",
-    "test-btc": "node scripts/test-btc-api.js"
+    "test-btc": "node scripts/test-btc-api.js",
+    "create-admin": "node scripts/create-admin.js"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.24.0",
+    "@auth/prisma-adapter": "^2.10.0",
     "@neondatabase/serverless": "^1.0.1",
     "@prisma/client": "^6.11.1",
     "@supabase/supabase-js": "^2.50.5",
+    "@types/bcryptjs": "^2.4.6",
     "@types/jspdf": "^1.3.3",
     "@vercel/analytics": "^1.5.0",
+    "bcryptjs": "^3.0.2",
     "jspdf": "^3.0.1",
     "lucide-react": "^0.525.0",
     "next": "15.3.5",
+    "next-auth": "^4.24.11",
     "prisma": "^6.11.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "recharts": "^3.1.0"
+    "react-hot-toast": "^2.5.2",
+    "recharts": "^3.1.0",
+    "resend": "^4.6.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
