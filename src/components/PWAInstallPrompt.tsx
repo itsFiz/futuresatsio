@@ -28,8 +28,18 @@ export default function PWAInstallPrompt() {
 
     // Detect platform
     const userAgent = navigator.userAgent.toLowerCase();
-    setIsIOS(/iphone|ipad|ipod/.test(userAgent));
-    setIsAndroid(/android/.test(userAgent));
+    const isIOSDevice = /iphone|ipad|ipod/.test(userAgent);
+    const isAndroidDevice = /android/.test(userAgent);
+    
+    console.log('PWA Install Prompt Debug:', {
+      userAgent,
+      isIOSDevice,
+      isAndroidDevice,
+      isStandalone: window.matchMedia('(display-mode: standalone)').matches
+    });
+    
+    setIsIOS(isIOSDevice);
+    setIsAndroid(isAndroidDevice);
 
     // Listen for beforeinstallprompt event
     const handleBeforeInstallPrompt = (e: Event) => {
@@ -38,17 +48,18 @@ export default function PWAInstallPrompt() {
       setShowPrompt(true);
     };
 
-    // Show prompt for iOS after a delay (since iOS doesn't support beforeinstallprompt)
-    if (isIOS && !isStandalone) {
+    // Show prompt for mobile devices after a delay
+    if ((isIOSDevice || isAndroidDevice) && !window.matchMedia('(display-mode: standalone)').matches) {
+      const delay = isIOSDevice ? 2000 : 5000; // iOS gets faster prompt
       const timer = setTimeout(() => {
         setShowPrompt(true);
-      }, 3000);
+      }, delay);
       return () => clearTimeout(timer);
     }
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-  }, [isIOS, isStandalone]);
+  }, []); // Remove isIOS and isStandalone from dependencies
 
   const handleInstallClick = async () => {
     if (deferredPrompt) {
@@ -84,7 +95,7 @@ export default function PWAInstallPrompt() {
   }
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 bg-slate-800 border border-slate-600 rounded-lg p-4 shadow-lg">
+    <div className="fixed bottom-24 sm:bottom-4 left-4 right-4 z-[10001] bg-slate-800 border border-slate-600 rounded-lg p-4 shadow-lg">
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center space-x-2">
           <Download className="w-5 h-5 text-orange-400" />
