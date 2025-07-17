@@ -212,6 +212,7 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
   const [btcData, setBtcData] = useState<BTCMarketData | null>(null);
   const [cagrModels, setCagrModels] = useState<CAGRModel[]>(INITIAL_CAGR_MODELS);
   const [isLoadingBTCData, setIsLoadingBTCData] = useState(false);
+  const [dataSource, setDataSource] = useState<'coingecko' | 'fallback' | 'unknown'>('unknown');
 
   // Fetch Bitcoin data on component mount
   useEffect(() => {
@@ -237,6 +238,7 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
         
         setBtcData(data);
         if (data) {
+          setDataSource('unknown'); // Assume unknown for initial load
           const updatedModels = updateCAGRModels(INITIAL_CAGR_MODELS, data);
           setCagrModels(updatedModels);
         }
@@ -458,7 +460,15 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
             {btcData && (
               <div className="text-right">
                 <div className="text-xs text-slate-500">Data Source</div>
-                <div className="text-xs font-semibold text-orange-400">CoinGecko API</div>
+                <div className={`text-xs font-semibold ${
+                  dataSource === 'coingecko' ? 'text-green-400' : 
+                  dataSource === 'fallback' ? 'text-yellow-400' : 
+                  'text-orange-400'
+                }`}>
+                  {dataSource === 'coingecko' ? 'CoinGecko API (Live)' : 
+                   dataSource === 'fallback' ? 'Fallback Data' : 
+                   'CoinGecko API'}
+                </div>
               </div>
             )}
             
@@ -466,15 +476,42 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
               onClick={async () => {
                 setIsLoadingBTCData(true);
                 try {
-                  await fetch('/api/btc-data', { method: 'POST' });
-                  const data = await fetchBTCData();
-                  setBtcData(data);
-                  if (data) {
-                    const updatedModels = updateCAGRModels(INITIAL_CAGR_MODELS, data);
+                  // Force a fresh fetch by adding cache-busting parameter
+                  const timestamp = Date.now();
+                  const response = await fetch(`/api/btc-data?_t=${timestamp}`, { 
+                    method: 'POST',
+                    headers: {
+                      'Cache-Control': 'no-cache',
+                      'Pragma': 'no-cache'
+                    }
+                  });
+                  
+                  if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                  }
+                  
+                  const result = await response.json();
+                  console.log('Refresh result:', result);
+                  
+                  if (result.data) {
+                    setBtcData(result.data);
+                    setDataSource(result.source || 'unknown');
+                    const updatedModels = updateCAGRModels(INITIAL_CAGR_MODELS, result.data);
                     setCagrModels(updatedModels);
+                  } else {
+                    // Fallback to regular fetch if no data in response
+                    const data = await fetchBTCData();
+                    setBtcData(data);
+                    setDataSource('unknown');
+                    if (data) {
+                      const updatedModels = updateCAGRModels(INITIAL_CAGR_MODELS, data);
+                      setCagrModels(updatedModels);
+                    }
                   }
                 } catch (error) {
                   console.error('Failed to update Bitcoin data:', error);
+                  // Show error to user
+                  alert(`Failed to refresh Bitcoin data: ${error instanceof Error ? error.message : 'Unknown error'}`);
                 } finally {
                   setIsLoadingBTCData(false);
                 }
@@ -505,17 +542,31 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
           <div className="mt-4 pt-4 border-t border-slate-700/50">
             <div className="flex flex-wrap items-center gap-4 text-xs">
               <div className="flex items-center space-x-1">
-                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                <span className="text-slate-400">Real-time pricing active</span>
+                <div className={`w-2 h-2 rounded-full ${
+                  dataSource === 'coingecko' ? 'bg-green-400' : 
+                  dataSource === 'fallback' ? 'bg-yellow-400' : 
+                  'bg-orange-400'
+                }`}></div>
+                <span className="text-slate-400">
+                  {dataSource === 'coingecko' ? 'Live data from CoinGecko' : 
+                   dataSource === 'fallback' ? 'Using fallback data (API may be rate limited)' : 
+                   'Data source unknown'}
+                </span>
               </div>
               <div className="flex items-center space-x-1">
                 <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                <span className="text-slate-400">Models updated with live data</span>
+                <span className="text-slate-400">Models updated with current data</span>
               </div>
               <div className="flex items-center space-x-1">
                 <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
                 <span className="text-slate-400">Auto-refresh every 24 hours</span>
               </div>
+              {dataSource === 'fallback' && (
+                <div className="flex items-center space-x-1">
+                  <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
+                  <span className="text-red-400 font-semibold">Rate limit warning</span>
+                </div>
+              )}
             </div>
           </div>
         )}

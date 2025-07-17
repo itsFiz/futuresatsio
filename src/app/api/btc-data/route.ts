@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
+import { PrismaClient } from '@prisma/client';
 
-const DATA_FILE_PATH = path.join(process.cwd(), 'data', 'btc-market-data.json');
+const prisma = new PrismaClient();
 
 interface CoinGeckoData {
   bitcoin: {
@@ -27,25 +26,50 @@ interface BTCMarketData {
   }[];
 }
 
-async function ensureDataDirectory() {
-  const dataDir = path.join(process.cwd(), 'data');
-  try {
-    await fs.access(dataDir);
-  } catch {
-    await fs.mkdir(dataDir, { recursive: true });
-  }
-}
-
 async function fetchCoinGeckoData(): Promise<CoinGeckoData> {
   console.log('Fetching CoinGecko data...');
   try {
-    const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true');
+    // Add cache-busting parameter and proper headers
+    const timestamp = Date.now();
+    const url = `https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true&_t=${timestamp}`;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'FutureSats-App/1.0',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      },
+      // Add timeout to prevent hanging requests
+      signal: AbortSignal.timeout(10000) // 10 second timeout
+    });
+
     if (!response.ok) {
-      console.error('CoinGecko API error:', response.status, response.statusText);
-      throw new Error(`Failed to fetch CoinGecko data: ${response.status}`);
+      const errorText = await response.text();
+      console.error('CoinGecko API error:', response.status, response.statusText, errorText);
+      
+      // Handle specific rate limiting
+      if (response.status === 429) {
+        throw new Error('Rate limited by CoinGecko API. Please try again later.');
+      }
+      
+      throw new Error(`Failed to fetch CoinGecko data: ${response.status} - ${response.statusText}`);
     }
+    
     const data = await response.json();
-    console.log('Successfully fetched CoinGecko data');
+    
+    // Validate the response structure
+    if (!data.bitcoin || typeof data.bitcoin.usd !== 'number') {
+      throw new Error('Invalid response structure from CoinGecko API');
+    }
+    
+    console.log('Successfully fetched CoinGecko data:', {
+      price: data.bitcoin.usd,
+      marketCap: data.bitcoin.usd_market_cap,
+      volume: data.bitcoin.usd_24h_vol
+    });
+    
     return {
       bitcoin: data.bitcoin,
       lastUpdated: new Date().toISOString()
@@ -104,32 +128,83 @@ function createFallbackData(): BTCMarketData {
   };
 }
 
-async function saveBTCData(data: BTCMarketData): Promise<void> {
-  await ensureDataDirectory();
-  await fs.writeFile(DATA_FILE_PATH, JSON.stringify(data, null, 2));
+async function saveBTCDataToDatabase(data: BTCMarketData, source: string): Promise<void> {
+  try {
+    // First, deactivate all existing records
+    await prisma.bTCMarketData.updateMany({
+      where: { isActive: true },
+      data: { isActive: false }
+    });
+
+    // Create new active record
+    await prisma.bTCMarketData.create({
+      data: {
+        currentPrice: data.currentPrice,
+        marketCap: data.marketCap,
+        volume: data.volume,
+        lastUpdated: data.lastUpdated,
+        priceHistory: data.priceHistory,
+        dataSource: source,
+        isActive: true
+      }
+    });
+
+    console.log('Bitcoin data saved to database successfully');
+  } catch (error) {
+    console.error('Error saving BTC data to database:', error);
+    throw error;
+  }
 }
 
-async function loadBTCData(): Promise<BTCMarketData | null> {
+async function loadBTCDataFromDatabase(): Promise<BTCMarketData | null> {
   try {
-    const data = await fs.readFile(DATA_FILE_PATH, 'utf-8');
-    return JSON.parse(data);
-  } catch {
+    const record = await prisma.bTCMarketData.findFirst({
+      where: { isActive: true },
+      orderBy: { updatedAt: 'desc' }
+    });
+
+    if (!record) {
+      return null;
+    }
+
+    return {
+      currentPrice: record.currentPrice,
+      marketCap: record.marketCap,
+      volume: record.volume,
+      lastUpdated: record.lastUpdated,
+      priceHistory: record.priceHistory as BTCMarketData['priceHistory']
+    };
+  } catch (error) {
+    console.error('Error loading BTC data from database:', error);
     return null;
   }
 }
 
 export async function GET() {
   try {
-    const data = await loadBTCData();
+    const data = await loadBTCDataFromDatabase();
     if (!data) {
       // Return a fallback response instead of 404
       return NextResponse.json({ 
         error: 'No data available',
         message: 'Bitcoin data not initialized. Use POST /api/btc-data to fetch initial data.'
-      }, { status: 200 });
+      }, { 
+        status: 200,
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      });
     }
     
-    return NextResponse.json(data);
+    return NextResponse.json(data, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
   } catch (error) {
     console.error('Error loading BTC data:', error);
     return NextResponse.json({ 
@@ -144,24 +219,34 @@ export async function POST() {
     console.log('POST /api/btc-data - Fetching fresh Bitcoin data from CoinGecko...');
     
     let processedData: BTCMarketData;
+    let dataSource = 'unknown';
     
     try {
       const rawData = await fetchCoinGeckoData();
       processedData = await processCoinGeckoData(rawData);
-      console.log('Successfully fetched live Bitcoin data');
+      dataSource = 'coingecko';
+      console.log('Successfully fetched live Bitcoin data from CoinGecko');
     } catch (coinGeckoError) {
       console.warn('CoinGecko API failed, using fallback data:', coinGeckoError);
       processedData = createFallbackData();
+      dataSource = 'fallback';
     }
     
-    await saveBTCData(processedData);
+    await saveBTCDataToDatabase(processedData, dataSource);
     
     console.log('Bitcoin data updated successfully');
-          return NextResponse.json({ 
-        message: 'Bitcoin data updated successfully',
-        data: processedData,
-        source: processedData.currentPrice > 100000 ? 'coingecko' : 'fallback'
-      });
+    return NextResponse.json({ 
+      message: 'Bitcoin data updated successfully',
+      data: processedData,
+      source: dataSource,
+      timestamp: new Date().toISOString()
+    }, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
   } catch (error) {
     console.error('Error updating BTC data:', error);
     return NextResponse.json({ 

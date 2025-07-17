@@ -4,5 +4,8 @@
       "path": "/api/cron/update-btc-data",
       "schedule": "0 0 * * *"
     }
-  ]
+  ],
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "framework": "nextjs"
 } 

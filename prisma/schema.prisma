@@ -185,3 +185,24 @@ enum UserRole {
   USER
   ADMIN
 }
+
+model BTCMarketData {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Market data
+  currentPrice Float
+  marketCap    Float
+  volume       Float
+  lastUpdated  String
+  
+  // Price history (stored as JSON)
+  priceHistory Json?
+
+  // Metadata
+  dataSource   String   @default("coingecko") // "coingecko" or "fallback"
+  isActive     Boolean  @default(true) // Only one record should be active at a time
+
+  @@map("btc_market_data")
+}

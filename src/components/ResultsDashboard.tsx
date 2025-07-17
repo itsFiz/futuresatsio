@@ -189,11 +189,14 @@ export default function ResultsDashboard({ currency, convert, format, currencyLo
         
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData.length > 0 ? chartData.map(row => ({
-              ...row,
-              portfolioValue: currencyLoading ? 0 : convert(row.portfolioValue, currency),
-              totalInvested: currencyLoading ? 0 : convert(row.totalInvested, currency),
-            })) : []}>
+            <LineChart 
+              data={chartData.length > 0 ? chartData.map(row => ({
+                ...row,
+                portfolioValue: currencyLoading ? 0 : convert(row.portfolioValue, currency),
+                totalInvested: currencyLoading ? 0 : convert(row.totalInvested, currency),
+              })) : []}
+              margin={{ left: 20, right: 30, top: 5, bottom: 5 }}
+            >
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
               <XAxis 
                 dataKey="year" 
@@ -204,15 +207,24 @@ export default function ResultsDashboard({ currency, convert, format, currencyLo
                 stroke="#9CA3AF"
                 tick={{ fill: '#9CA3AF' }}
                 yAxisId="left"
+                tickFormatter={(value) => value.toFixed(2)}
+                width={80}
               />
               <YAxis 
                 orientation="right" 
                 stroke="#9CA3AF"
                 tick={{ fill: '#9CA3AF' }}
                 yAxisId="right"
+                tickFormatter={(value) => {
+                  if (value >= 1e9) return `${(value / 1e9).toFixed(1)}B`;
+                  if (value >= 1e6) return `${(value / 1e6).toFixed(1)}M`;
+                  if (value >= 1e3) return `${(value / 1e3).toFixed(1)}K`;
+                  return value.toFixed(0);
+                }}
+                width={80}
               />
-                             <Tooltip content={<CustomTooltip />} />
-               <Legend />
+              <Tooltip content={<CustomTooltip />} />
+              <Legend />
               <Line 
                 type="monotone" 
                 dataKey="btcAccumulated" 
@@ -221,22 +233,22 @@ export default function ResultsDashboard({ currency, convert, format, currencyLo
                 yAxisId="left"
                 name="BTC Accumulated"
               />
-                             <Line 
-                 type="monotone" 
-                 dataKey="portfolioValue" 
-                 stroke="#10B981" 
-                 strokeWidth={3}
-                 yAxisId="right"
-                 name="Portfolio Value"
-               />
-               <Line 
-                 type="monotone" 
-                 dataKey="totalInvested" 
-                 stroke="#3B82F6" 
-                 strokeWidth={2}
-                 yAxisId="right"
-                 name="Total Invested"
-               />
+              <Line 
+                type="monotone" 
+                dataKey="portfolioValue" 
+                stroke="#10B981" 
+                strokeWidth={3}
+                yAxisId="right"
+                name="Portfolio Value"
+              />
+              <Line 
+                type="monotone" 
+                dataKey="totalInvested" 
+                stroke="#3B82F6" 
+                strokeWidth={2}
+                yAxisId="right"
+                name="Total Invested"
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
