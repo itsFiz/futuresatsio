@@ -267,7 +267,7 @@ export default function SubmitModelPage() {
                   className={`w-full px-4 py-3 bg-slate-700/50 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500 ${
                     errors.xHandle ? 'border-red-500' : 'border-slate-600'
                   }`}
-                  placeholder="@elonmusk"
+                  placeholder="@yourusername"
                 />
                 {errors.xHandle && (
                   <p className="text-red-400 text-sm mt-1">{errors.xHandle}</p>

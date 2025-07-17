@@ -11,7 +11,7 @@ async function testProductionAPI() {
   // Test GET endpoint
   try {
     console.log('📡 Testing GET /api/btc-data...');
-    const getResponse = await fetch('https://your-app-name.vercel.app/api/btc-data');
+    const getResponse = await fetch('https://futuresats.io/api/btc-data');
     
     if (getResponse.ok) {
       const data = await getResponse.json();
@@ -28,7 +28,7 @@ async function testProductionAPI() {
   // Test POST endpoint
   try {
     console.log('\n📡 Testing POST /api/btc-data...');
-    const postResponse = await fetch('https://your-app-name.vercel.app/api/btc-data', {
+    const postResponse = await fetch('https://futuresats.io/api/btc-data', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

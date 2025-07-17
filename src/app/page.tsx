@@ -44,10 +44,10 @@ interface DipBuy {
 // }
 
 const steps = [
-  { label: "Simulator", icon: Calculator, free: true },
-  { label: "Dip Buy Planner", icon: TrendingUp, pro: true },
+  { label: "Withdrawal & Retirement Simulator", icon: Calculator, free: true },
+  { label: "Bearish Halving Dip Buy Planner", icon: TrendingUp, pro: true },
   // Removed Withdrawal Planner step
-  { label: "Results", icon: BarChart3, pro: true },
+  { label: "Comprehensive Dashboard Results", icon: BarChart3, pro: true },
 ];
 
 export default function Home() {

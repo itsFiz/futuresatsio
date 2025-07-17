@@ -1541,11 +1541,11 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
         <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50 overflow-hidden">
           <h4 className="text-white text-base font-semibold mb-2">Modeled Price vs Remaining BTC</h4>
           <ResponsiveContainer width="100%" height={260}>
-            <LineChart data={projection} margin={{ top: 10, right: 60, left: 0, bottom: 0 }}>
+            <LineChart data={projection} margin={{ top: 10, right: 60, left: 60, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
               <XAxis dataKey="year" stroke="#9CA3AF" tick={{ fill: '#9CA3AF' }} />
-              <YAxis yAxisId="left" stroke="#9CA3AF" tick={{ fill: '#9CA3AF' }} domain={[dataMin => Math.floor(dataMin), dataMax => Math.ceil(dataMax)]} tickFormatter={v => v.toLocaleString()} />
-              <YAxis yAxisId="right" orientation="right" stroke="#9CA3AF" tick={{ fill: '#9CA3AF' }} domain={[dataMin => Math.floor(dataMin * 100) / 100, dataMax => Math.ceil(dataMax * 100) / 100]} />
+              <YAxis yAxisId="left" stroke="#9CA3AF" tick={{ fill: '#9CA3AF' }} tickFormatter={v => v.toLocaleString()} />
+              <YAxis yAxisId="right" orientation="right" stroke="#9CA3AF" tick={{ fill: '#9CA3AF' }} />
               <Tooltip formatter={(value, name) => [typeof value === 'number' ? value.toLocaleString() : value, name]} />
               <Legend />
               <ReferenceLine x={params.targetYear} stroke="#EC4899" strokeDasharray="4 2" label={{ value: `Retirement Year (${params.targetYear})`, fill: '#EC4899', fontWeight: 600, fontSize: 12, position: 'right' }} />
@@ -1597,7 +1597,7 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
               ...row,
               portfolioValue: currencyLoading ? 0 : row.totalValue,
               totalInvested: currencyLoading ? 0 : row.totalInvested,
-            }))} margin={{ top: 10, right: 60, left: 0, bottom: 0 }}>
+            }))} margin={{ top: 10, right: 60, left: 60, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
               <XAxis dataKey="year" stroke="#9CA3AF" tick={{ fill: '#9CA3AF' }} />
               <YAxis stroke="#9CA3AF" tick={{ fill: '#9CA3AF' }} tickFormatter={v => v.toLocaleString()} />
