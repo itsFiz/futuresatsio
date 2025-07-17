@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { X, Download, Smartphone, Share2 } from 'lucide-react';
+import { X, Download, Smartphone, Share2, ArrowUp } from 'lucide-react';
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
@@ -59,7 +59,7 @@ export default function PWAInstallPrompt() {
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-  }, []); // Remove isIOS and isStandalone from dependencies
+  }, []);
 
   const handleInstallClick = async () => {
     if (deferredPrompt) {
@@ -114,18 +114,34 @@ export default function PWAInstallPrompt() {
       </p>
 
       {isIOS ? (
-        <div className="space-y-2">
-          <div className="flex items-center space-x-2 text-xs text-slate-300">
-            <Share2 className="w-4 h-4" />
-            <span>1. Tap the Share button</span>
+        <div className="space-y-3">
+          {/* Visual arrow pointing to Safari share button */}
+          <div className="flex justify-center">
+            <div className="flex flex-col items-center">
+              <ArrowUp className="w-6 h-6 text-orange-400 animate-bounce" />
+              <span className="text-xs text-orange-400 mt-1">Tap Safari Share Button</span>
+            </div>
           </div>
-          <div className="flex items-center space-x-2 text-xs text-slate-300">
-            <Download className="w-4 h-4" />
-            <span>2. Select &ldquo;Add to Home Screen&rdquo;</span>
+          
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2 text-xs text-slate-300">
+              <Share2 className="w-4 h-4" />
+              <span>1. Tap the Share button in Safari toolbar</span>
+            </div>
+            <div className="flex items-center space-x-2 text-xs text-slate-300">
+              <Download className="w-4 h-4" />
+              <span>2. Scroll down and select &ldquo;Add to Home Screen&rdquo;</span>
+            </div>
+            <div className="flex items-center space-x-2 text-xs text-slate-300">
+              <Smartphone className="w-4 h-4" />
+              <span>3. Tap &ldquo;Add&rdquo; to install</span>
+            </div>
           </div>
-          <div className="flex items-center space-x-2 text-xs text-slate-300">
-            <Smartphone className="w-4 h-4" />
-            <span>3. Tap &ldquo;Add&rdquo; to install</span>
+          
+          <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-2">
+            <p className="text-xs text-orange-300 text-center">
+              💡 The &ldquo;Add to Home Screen&rdquo; option appears in Safari&apos;s native share menu
+            </p>
           </div>
         </div>
       ) : isAndroid && deferredPrompt ? (
@@ -148,12 +164,15 @@ export default function PWAInstallPrompt() {
         </div>
       )}
 
-      <button
-        onClick={handleShareClick}
-        className="w-full mt-3 bg-slate-700 hover:bg-slate-600 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors"
-      >
-        Share App
-      </button>
+      {/* Only show Share App button for non-iOS devices */}
+      {!isIOS && (
+        <button
+          onClick={handleShareClick}
+          className="w-full mt-3 bg-slate-700 hover:bg-slate-600 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors"
+        >
+          Share App
+        </button>
+      )}
     </div>
   );
 } 
