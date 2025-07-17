@@ -353,9 +353,9 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
   const finalResult = projection.length > 0 ? projection[projection.length - 1] : null;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 max-w-full overflow-x-hidden">
       {/* Bitcoin Data Status */}
-      <div className="bg-gradient-to-r from-slate-800/80 to-slate-900/90 backdrop-blur-sm rounded-2xl p-6 mb-6 border border-slate-700/50 shadow-xl">
+      <div className="bg-gradient-to-r from-slate-800/80 to-slate-900/90 backdrop-blur-sm rounded-2xl p-6 mb-6 border border-slate-700/50 shadow-xl overflow-hidden">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           {/* Left Section - Status Info */}
           <div className="flex items-center space-x-4">
@@ -581,7 +581,7 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
             </button>
             <h2 className="text-2xl font-bold text-white mb-6">Model Categories Comparison</h2>
             
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8 mb-8">
               {/* True Market Mean Models */}
               <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
                 <h3 className="text-xl font-bold text-orange-400 mb-4">True Market Mean Models</h3>
@@ -713,7 +713,7 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
       {/* Input Form */}
       <div className="space-y-8">
         {/* Model Selection Section */}
-        <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50">
+        <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 overflow-hidden">
           <h3 className="text-xl font-bold text-white mb-6 flex items-center space-x-2">
             <TrendingUp className="w-5 h-5 text-blue-500" />
             <span>Growth Model Selection</span>
@@ -794,7 +794,7 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
                         )}
                       </div>
                       
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
                         {category.models.map((model) => (
                           <div key={model.name} className="relative">
                             <button
@@ -1178,7 +1178,7 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
             {cagrMode === 'customSlope' && (
               <div className="space-y-4">
                 <label className="text-slate-300 font-semibold">Custom Slope Parameters</label>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div>
                     <label className="text-slate-300 text-sm mb-2 block">Max %</label>
                     <input
@@ -1222,7 +1222,7 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
         </div>
 
         {/* Parameters Section */}
-        <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50">
+        <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 overflow-hidden">
           <h3 className="text-xl font-bold text-white mb-6 flex items-center space-x-2">
             <Calculator className="w-5 h-5 text-orange-500" />
             <span>Retirement Parameters</span>
@@ -1276,7 +1276,7 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
             {withdrawalModel === 'custom' && (
               <div className="mt-4 space-y-4">
                 <label className="text-slate-300 font-semibold">Custom Withdrawal Slope</label>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div>
                     <label className="text-slate-300 text-sm mb-2 block">Max %</label>
                     <input
@@ -1319,7 +1319,7 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
           </div>
 
           {/* Main Parameter Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Target Year */}
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">
@@ -1427,7 +1427,7 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
       </div>
 
       {/* Quick Summary */}
-      <div className="bg-gradient-to-br from-slate-800/70 to-purple-900/60 rounded-2xl p-8 border border-slate-700/50 shadow-xl">
+      <div className="bg-gradient-to-br from-slate-800/70 to-purple-900/60 rounded-2xl p-8 border border-slate-700/50 shadow-xl overflow-hidden">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-2xl font-bold text-white">Projection Summary</h3>
           {cagrMode === 'model' && (
@@ -1445,9 +1445,9 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
             </div>
           )}
         </div>
-        <div className="flex flex-col md:flex-row gap-4 md:gap-6 justify-between items-stretch">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
           {/* Retirement BTC Card */}
-          <div className="flex-1 min-w-[180px] bg-slate-900/60 rounded-xl shadow-md p-6 flex flex-col items-center justify-center">
+          <div className="bg-slate-900/60 rounded-xl shadow-md p-6 flex flex-col items-center justify-center">
             <div className="text-slate-300 text-base font-medium mb-2 text-center">Retirement BTC - {params.targetYear}</div>
             <div className={`font-extrabold text-orange-400 tracking-tight text-center ${getResponsiveFontSize(projection.find(row => row.year === params.targetYear)?.totalBTC.toFixed(2) || '0.00')}`}>{(() => {
               const retirementYearRow = projection.find(row => row.year === params.targetYear);
@@ -1455,7 +1455,7 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
             })()} <span className="text-lg font-bold">BTC</span></div>
           </div>
           {/* Year of Withdrawal BTC Card */}
-          <div className="flex-1 min-w-[180px] bg-slate-900/60 rounded-xl shadow-md p-6 flex flex-col items-center justify-center">
+          <div className="bg-slate-900/60 rounded-xl shadow-md p-6 flex flex-col items-center justify-center">
             <div className="text-slate-300 text-base font-medium mb-2 text-center">Year of Withdrawal BTC - {params.withdrawalStartYear}</div>
             <div className={`font-extrabold text-orange-400 tracking-tight text-center ${getResponsiveFontSize(projection.find(row => row.year === params.withdrawalStartYear)?.totalBTC.toFixed(2) || '0.00')}`}>{(() => {
               const withdrawalYearRow = projection.find(row => row.year === params.withdrawalStartYear);
@@ -1463,21 +1463,21 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
             })()} <span className="text-lg font-bold">BTC</span></div>
           </div>
           {/* Portfolio Value */}
-          <div className="flex-1 min-w-[180px] bg-slate-900/60 rounded-xl shadow-md p-6 flex flex-col items-center justify-center">
+          <div className="bg-slate-900/60 rounded-xl shadow-md p-6 flex flex-col items-center justify-center">
             <div className="text-slate-300 text-base font-medium mb-2 text-center">Portfolio Value</div>
             <div className={`font-extrabold text-green-400 text-center w-full px-2 break-words ${getResponsiveFontSize(currencyLoading ? '' : format(finalResult?.totalValue || 0, currency))}`}>
               {currencyLoading ? '...' : format(finalResult?.totalValue || 0, currency)}
             </div>
           </div>
           {/* Total Invested */}
-          <div className="flex-1 min-w-[180px] bg-slate-900/60 rounded-xl shadow-md p-6 flex flex-col items-center justify-center">
+          <div className="bg-slate-900/60 rounded-xl shadow-md p-6 flex flex-col items-center justify-center">
             <div className="text-slate-300 text-base font-medium mb-2 text-center">Total Invested</div>
             <div className={`font-extrabold text-blue-400 text-center w-full px-2 break-words ${getResponsiveFontSize(currencyLoading ? '' : format(finalResult?.totalInvested || 0, currency))}`}>
               {currencyLoading ? '...' : format(finalResult?.totalInvested || 0, currency)}
             </div>
           </div>
           {/* ROI Multiplier */}
-          <div className="flex-1 min-w-[180px] bg-slate-900/60 rounded-xl shadow-md p-6 flex flex-col items-center justify-center">
+          <div className="bg-slate-900/60 rounded-xl shadow-md p-6 flex flex-col items-center justify-center">
             <div className="text-slate-300 text-base font-medium mb-2 text-center">ROI Multiplier</div>
             <div className={`font-extrabold text-purple-400 tracking-tight text-center ${getResponsiveFontSize(finalResult ? (finalResult.totalValue / finalResult.totalInvested).toFixed(1) : '0.0')}`}>{finalResult ? (finalResult.totalValue / finalResult.totalInvested).toFixed(1) : '0.0'}<span className="text-lg font-bold">x</span></div>
           </div>
@@ -1485,9 +1485,9 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-8">
         {/* Modeled Price vs Remaining BTC */}
-        <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
+        <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50 overflow-hidden">
           <h4 className="text-white text-base font-semibold mb-2">Modeled Price vs Remaining BTC</h4>
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={projection} margin={{ top: 10, right: 60, left: 0, bottom: 0 }}>
@@ -1505,7 +1505,7 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
           </ResponsiveContainer>
         </div>
         {/* CAGR over Years */}
-        <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
+        <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50 overflow-hidden">
           <h4 className="text-white text-base font-semibold mb-2">CAGR over Years</h4>
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={projection} margin={{ top: 10, right: 60, left: 0, bottom: 0 }}>
@@ -1521,9 +1521,9 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
           </ResponsiveContainer>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-8">
         {/* Withdrawal Percentage over Years */}
-        <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
+        <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50 overflow-hidden">
           <h4 className="text-white text-base font-semibold mb-2">Withdrawal Percentage over Years</h4>
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={projection} margin={{ top: 10, right: 60, left: 0, bottom: 0 }}>
@@ -1539,7 +1539,7 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
           </ResponsiveContainer>
         </div>
         {/* Portfolio Value vs Total Invested Over Time */}
-        <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
+        <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50 overflow-hidden">
           <h4 className="text-white text-base font-semibold mb-2">Portfolio Value vs Total Invested</h4>
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={projection.map(row => ({
@@ -1562,12 +1562,12 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
       </div>
 
       {/* Yearly Breakdown Table */}
-      <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50">
-        <div className="flex items-center justify-between mb-4">
+      <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 overflow-hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
           <h3 className="text-xl font-bold text-white">Yearly Breakdown</h3>
           <button
             onClick={() => setShowCAGRModal(true)}
-            className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded-lg transition-colors flex items-center space-x-2 text-sm"
+            className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded-lg transition-colors flex items-center space-x-2 text-sm w-full sm:w-auto justify-center"
             title="View Bitcoin CAGR vs Traditional Assets"
           >
             <Info className="w-4 h-4" />
@@ -1575,7 +1575,8 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
           </button>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-xs md:text-sm">
+          <div className="min-w-full">
+            <table className="w-full text-xs md:text-sm">
             <thead>
               <tr className="border-b border-slate-600">
                 <th className="text-left py-3 px-4 text-slate-300">Year</th>
@@ -1616,6 +1617,7 @@ export default function BTCRetirementSimulator({ currency, convert, format, curr
               })}
             </tbody>
           </table>
+        </div>
         </div>
         {/* Legend */}
         <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-6">

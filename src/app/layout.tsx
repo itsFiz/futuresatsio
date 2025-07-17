@@ -9,9 +9,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "FutureSats.io - BTC Retirement Planner",
   description: "Plan your Bitcoin retirement with our advanced BTC accumulation simulator. Set DCA schedules, simulate dip buys, and project your wealth growth through halving cycles.",
-  keywords: "Bitcoin, BTC, retirement planning, DCA, halving cycles, wealth accumulation",
+  keywords: "Bitcoin, BTC, retirement planning, DCA, halving cycles, wealth accumulation, PWA, mobile app",
   authors: [{ name: "Fiz @ F12.GG" }],
-  viewport: "width=device-width, initial-scale=1",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover",
   icons: {
     icon: [
       { url: '/favicon.ico?v=2', sizes: 'any' },
@@ -30,6 +30,22 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: 'default',
     title: 'FutureSats',
+    startupImage: [
+      {
+        url: '/icon-192x192.png',
+        media: '(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)',
+      },
+      {
+        url: '/web-app-manifest-512x512.png',
+        media: '(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)',
+      },
+    ],
+  },
+  other: {
+    'mobile-web-app-capable': 'yes',
+    'application-name': 'FutureSats',
+    'msapplication-TileColor': '#f97316',
+    'msapplication-TileImage': '/icon-192x192.png',
   },
 };
 
